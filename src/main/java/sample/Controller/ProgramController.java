@@ -17,9 +17,10 @@ import java.util.stream.Collectors;
 
 public class ProgramController {
     private static boolean justOneObject = false;
-    private final static String usersInfoPath = "src\\main\\java\\Database\\UsersInfo.txt";
-    private final static String monstersInfoPath = "src\\main\\java\\Database\\MonstersInfo.txt";
-    private final static String spellAndTrapsINfoPath = "src\\main\\java\\Database\\Spell&TrapsInfo.txt";
+    private final static String databasePath = ProgramController.class.getResource("../../Database").toExternalForm();
+    private final static String usersInfoPath = "target\\classes\\Database\\UsersInfo.txt";
+    private final static String monstersInfoPath = "target\\classes\\Database\\MonstersInfo.txt";
+    private final static String spellAndTrapsINfoPath = "target\\classes\\Database\\Spell&TrapsInfo.txt";
     private AccountJson loggedInUser ;
 
     public ProgramController(){

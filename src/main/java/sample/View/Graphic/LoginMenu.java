@@ -11,8 +11,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
@@ -56,7 +60,15 @@ public class LoginMenu extends Application {
 
 
 
-        Image backGroundImage = new Image(getClass().getResource("..\\..\\..\\Assets\\Textures\\Campaign_11_HelpBG1.dds.png").toExternalForm());
+        Media media = new Media(getClass().getResource("..\\..\\..\\sounds yugioh/FUSION.mp3").toExternalForm());
+        MediaPlayer mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.setCycleCount(1);
+
+        mediaPlayer.play();
+
+
+
+        Image backGroundImage = new Image(getClass().getResource("..\\..\\..\\Assets\\yugioh wallpaper.jpg").toExternalForm());
         BackgroundSize bSize = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false,
                 false, true, false);
         root.setBackground(new Background(new BackgroundImage(backGroundImage,
@@ -158,11 +170,11 @@ public class LoginMenu extends Application {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                onTMessaeg.setText(response.get("message").toString());
+
 
                 if (!response.get("type").toString().equals("error") && (! userText.getText().isEmpty())&& (!passtext.getText().isEmpty())) {
 
-
+                    onTMessaeg.setText(response.get("message").toString());
                     mainMenu = new MainMenu(userText.getText(), nickText.getText());
                     mainMenu.setPriorMenu(new LoginMenu());
                     try {
@@ -170,10 +182,23 @@ public class LoginMenu extends Application {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
+                } else onTMessaeg.setText("input your username and password both");
 
 
 //d
+            }
+        });
+
+       loginElementContainer.setOnMouseEntered(new EventHandler<MouseEvent>() {
+           @Override
+           public void handle(MouseEvent event) {
+               loginElementContainer.setEffect(new DropShadow());
+           }
+       });
+        loginElementContainer.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                loginElementContainer.setEffect(null);
             }
         });
 
@@ -197,6 +222,8 @@ public class LoginMenu extends Application {
             }
 
         });
+
+
 
 
         primaryStage.show();

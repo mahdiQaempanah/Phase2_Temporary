@@ -18,6 +18,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
@@ -49,7 +51,7 @@ public void start(Stage primaryStage) throws Exception {
         Scene scene = new Scene(root, 800, 600);
 
 
-        Image backGroundImage = new Image(getClass().getResource("..\\Assets\\Textures\\Campaign_11_HelpBG1.dds.png").toExternalForm());
+        Image backGroundImage = new Image(getClass().getResource("..\\Assets\\yugioh wallpaper.jpg").toExternalForm());
         BackgroundSize bSize = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false,
         false, true, false);
         root.setBackground(new Background(new BackgroundImage(backGroundImage,
@@ -132,6 +134,12 @@ public void handle(MouseEvent event) {
 
 
         //end
+
+        Media media = new Media(getClass().getResource("..\\sounds yugioh/DP_APPEAR.mp3").toExternalForm());
+        MediaPlayer mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.setCycleCount(1);
+
+        mediaPlayer.play();
 
 
         primaryStage.show();

@@ -1,5 +1,6 @@
 package sample;
 
+import com.google.gson.Gson;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
@@ -15,6 +16,7 @@ import javafx.scene.transform.Affine;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import sample.Controller.ProgramController;
+import sample.Model.Game.Phase;
 
 public class Main extends Application {
     public static Point2D stageSize = new Point2D(1950, 1030);
@@ -30,6 +32,7 @@ public class Main extends Application {
         primaryStage.setResizable(false);
         primaryStage.show();
         Label label = new Label();*/
+        System.out.println(new Gson().toJson(Phase.MAIN_PHASE_1));
     }
 
 

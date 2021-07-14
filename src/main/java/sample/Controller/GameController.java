@@ -78,7 +78,7 @@ public class GameController{
         }
         game.getActivePlayer().setSelectedCard(selectedCard);
         game.addToGameLog(GameLogType.SELECT_CARD, selectedCard.hashCode());
-        return new ApiMessage(ApiMessage.successful,"card selected");
+        return new ApiMessage(ApiMessage.successful,"{\"cardName\"=\""+game.getActivePlayer().getSelectedCard().getName()+"\"}");
     }
 
     public ApiMessage deselectCard() throws Exception {
@@ -90,15 +90,15 @@ public class GameController{
     }
 
     public ApiMessage nextPhase() throws Exception {
-        game.nextPhase();
         game.addNextPhaseLog(game.getPhase());
+        game.nextPhase();
         return new ApiMessage(ApiMessage.successful,new Gson().toJson(game.getPhase()));
     }
 
     public ApiMessage addCardFromDeckToHand() throws Exception {
         Card card = game.getActivePlayer().draw();
         game.addToGameLog(GameLogType.ADD_CARD_TO_HAND,card.hashCode());
-        return new ApiMessage(ApiMessage.successful,"new card added to the hand : " + card.getName());
+        return new ApiMessage(ApiMessage.successful,"{\"newCard\":\"" + card.getName() +"\"}");
     }
 
     public ApiMessage summonMonster() throws Exception {
@@ -128,7 +128,7 @@ public class GameController{
         if(selectedCard.getLevel() <= 4){
             game.getActivePlayer().summon(selectedCard);
             game.addSummonMonsterLog(selectedCard.hashCode());
-            return new ApiMessage(ApiMessage.successful,("summoned successfully"));
+            return new ApiMessage(ApiMessage.successful,("{\"tribute\":0}"));
         }
 
         else if(selectedCard.getLevel() <= 6){
@@ -220,26 +220,6 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,"monster card position changed successfully");
     }
 
-    public ApiMessage flipSummonMonster() throws Exception {
-        if(game.getActivePlayer().getSelectedCard() == null)
-            return new ApiMessage(ApiMessage.error,"no card is selected yet");
-
-        if(!game.getActivePlayer().getField().isMonsterZoneContains(game.getActivePlayer().getSelectedCard()))
-            return new ApiMessage(ApiMessage.error,"you can’t change this card position");
-
-        if(game.getPhase() != Phase.MAIN_PHASE_1 && game.getPhase() != Phase.MAIN_PHASE_2)
-            return new ApiMessage(ApiMessage.error,"you can’t do this action in this phase");
-
-        MonsterCard selectedCard = (MonsterCard) game.getActivePlayer().getSelectedCard();
-
-        if(selectedCard.getStatus() != Status.SET)
-            return new ApiMessage(ApiMessage.error,"you can’t flip summon this card");
-
-        game.getActivePlayer().flipSummon(selectedCard);
-        game.addToGameLog(GameLogType.FLIP_SUMMON_MONSTER,selectedCard.hashCode());
-        return new ApiMessage(ApiMessage.successful,"flip summoned successfully");
-    }
-
     public ApiMessage attack(int targetMonsterCellId) throws Exception {
         if(game.getActivePlayer().getSelectedCard() == null)
             return new ApiMessage(ApiMessage.error,"no card is selected yet");
@@ -266,9 +246,6 @@ public class GameController{
 
         game.addAttackLog(selectedCard.hashCode(),targetMonster.hashCode());
         AttackInfo ans = game.getActivePlayer().attack(game , selectedCard , targetMonster);
-        ApiMessage attemptToEndRound = isRoundOver();
-        if(attemptToEndRound != null)
-            return attemptToEndRound;
         return new ApiMessage(ApiMessage.successful,new Gson().toJson(ans));
     }
 
@@ -292,10 +269,37 @@ public class GameController{
 
         game.addToGameLog(GameLogType.DIRECT_ATTACK,selectedCard.hashCode());
         game.getActivePlayer().directAttack(game,selectedCard);
-        ApiMessage attemptToEndRound = isRoundOver();
-        if(attemptToEndRound != null)
-            return attemptToEndRound;
         return new ApiMessage(ApiMessage.successful,"{\"damage\"=" + selectedCard.getAtk() + "}");
+    }
+
+    public ApiMessage activateEffect() throws Exception {
+        if(game.getActivePlayer().getSelectedCard() == null)
+            return new ApiMessage(ApiMessage.error,"no card is selected yet");
+
+        if(game.getActivePlayer().getSelectedCard().getCategory() != Category.SPELL)
+            return new ApiMessage(ApiMessage.error,"activate effect is only for spell cards.");
+
+        if(game.getPhase() != Phase.MAIN_PHASE_1)
+            return new ApiMessage(ApiMessage.error,"you can’t activate an effect on this turn");
+
+        SpellCard selectedCard = (SpellCard) game.getActivePlayer().getSelectedCard();
+
+        if(selectedCard.isActivateInTurn())
+            return new ApiMessage(ApiMessage.error,"you have already activated this card");
+
+        if(game.getActivePlayer().getField().getCntFreeCellsInSpellZone() == 0 &&
+                game.getActivePlayer().getField().isSpellZoneContains(selectedCard) &&
+                selectedCard.getIcon() != Icon.FIELD)
+            return new ApiMessage(ApiMessage.error,"spell card zone is full");
+
+        game.addToGameLog(GameLogType.ACTIVE_EFFECT,selectedCard.hashCode());
+        if(selectedCard.getIcon() == Icon.FIELD){
+            game.getActivePlayer().activateField(game,selectedCard);
+        }
+        else{
+            game.getActivePlayer().activateSpell(game,selectedCard);
+        }
+        return new ApiMessage(ApiMessage.successful,"spell activated");
     }
 
     public ApiMessage isRoundOver() throws Exception {
@@ -329,36 +333,6 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,ans.toString());
     }
 
-    public ApiMessage activateEffect() throws Exception {
-        if(game.getActivePlayer().getSelectedCard() == null)
-            return new ApiMessage(ApiMessage.error,"no card is selected yet");
-
-        if(game.getActivePlayer().getSelectedCard().getCategory() != Category.SPELL)
-            return new ApiMessage(ApiMessage.error,"activate effect is only for spell cards.");
-
-        if(game.getPhase() != Phase.MAIN_PHASE_1)
-            return new ApiMessage(ApiMessage.error,"you can’t activate an effect on this turn");
-
-        SpellCard selectedCard = (SpellCard) game.getActivePlayer().getSelectedCard();
-
-        if(selectedCard.isActivateInTurn())
-            return new ApiMessage(ApiMessage.error,"you have already activated this card");
-
-        if(game.getActivePlayer().getField().getCntFreeCellsInSpellZone() == 0 &&
-                game.getActivePlayer().getField().isSpellZoneContains(selectedCard) &&
-                selectedCard.getIcon() != Icon.FIELD)
-            return new ApiMessage(ApiMessage.error,"spell card zone is full");
-
-        game.addToGameLog(GameLogType.ACTIVE_EFFECT,selectedCard.hashCode());
-        if(selectedCard.getIcon() == Icon.FIELD){
-            game.getActivePlayer().activateField(game,selectedCard);
-        }
-        else{
-            game.getActivePlayer().activateSpell(game,selectedCard);
-        }
-        return new ApiMessage(ApiMessage.successful,"spell activated");
-    }
-
     public ApiMessage setSpellAndTrap() throws Exception {
         if(game.getActivePlayer().getSelectedCard() == null)
             return new ApiMessage(ApiMessage.error,"no card is selected yet");
@@ -378,8 +352,6 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,"set successfully");
     }
 
-    public void ritualSummonMonster(){
-    }
 
     public ApiMessage getBoard() throws  Exception {
         return new ApiMessage(ApiMessage.successful,new Gson().toJson(new BoardJson(new FieldJson(game.getActivePlayer()),new FieldJson(game.getInactivePlayer()))));

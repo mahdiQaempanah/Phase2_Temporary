@@ -19,7 +19,6 @@ public class Game {
     private static ArrayList<Game> games;
     private ArrayList<String> gameLog;
 
-
     static{
         counter = 1;
         games = new ArrayList<Game>();
@@ -87,7 +86,6 @@ public class Game {
         }
     }
 
-
     public static Game getGameByID(int id){
         for(Game game : games){
             if(game.getId()==id) return game;
@@ -146,12 +144,8 @@ public class Game {
         return this.gameLog;
     }
 
-
-
     public void addToGameLog(String log){
         gameLog.add(log);
-        checkEffects(activePlayer);
-        checkEffects(inactivePlayer);
     }
 
     private void checkEffects(Player player) {

@@ -4,6 +4,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseDragEvent;
@@ -14,13 +15,21 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
+import javafx.stage.Stage;
+import netscape.javascript.JSObject;
+import org.json.JSONObject;
+import sample.Model.ApiMessage;
 import sample.Model.Game.Card.MonsterCard.Mode;
 import sample.Model.Game.Card.Status;
 import sample.Model.JsonObject.CardBoardInfo;
 import sample.Model.JsonObject.FieldJson;
 import sample.View.GameViewController;
+import sun.net.www.content.text.Generic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 public class FieldComponent {
     public static final Point2D cardSize = new Point2D(104,120);
@@ -35,7 +44,8 @@ public class FieldComponent {
     private Label deckZoneSize;
     private boolean isActivePlayer;
 
-    public FieldComponent(AnchorPane mainPane,boolean isActivePlayer){
+    public FieldComponent(GameViewController controller,AnchorPane mainPane,boolean isActivePlayer){
+        this.myController = controller;
         this.mainPane = mainPane;
         this.isActivePlayer = isActivePlayer;
         monsterZone = new Rectangle[5];
@@ -51,7 +61,7 @@ public class FieldComponent {
             buildDeckZone(field.getDeckSize(),ActivePlayerCardsCoordinates.deckZone);
             buildUserInfo(field.getNickName(),field.getLife(),ActivePlayerCardsCoordinates.userInfo);
             buildFieldZone(field.getFieldZone(),ActivePlayerCardsCoordinates.fieldZone);
-           // buildHand(field.getHand())
+            //buildHand(field.getHand())
         }else{
             buildMonsterZone(field.getMonsterZone(),InactivePlayerCardsCoordinates.monsterZone);
             buildSpellZone(field.getSpellZone(),InactivePlayerCardsCoordinates.spellZone);
@@ -63,7 +73,7 @@ public class FieldComponent {
         }
     }
 
-    private void buildMonsterZone(CardBoardInfo[] monsters, Point2D[] monsterZone) {
+    public void buildMonsterZone(CardBoardInfo[] monsters, Point2D[] monsterZone) {
         for (Rectangle monster : this.monsterZone) {
             if(monster != null)
                 mainPane.getChildren().remove(monster);
@@ -86,7 +96,7 @@ public class FieldComponent {
         }
     }
 
-    private void buildSpellZone(CardBoardInfo[] spells, Point2D[] spellZone) {
+    public void buildSpellZone(CardBoardInfo[] spells, Point2D[] spellZone) {
         for (Rectangle spell : this.spellZone) {
             if(spell != null)
                 mainPane.getChildren().remove(spell);
@@ -105,7 +115,7 @@ public class FieldComponent {
         }
     }
 
-    private void buildGraveYard(int graveYardSizeInt, Point2D graveYard) {
+    public void buildGraveYard(int graveYardSizeInt, Point2D graveYard) {
         if(this.graveYardSize != null){
             mainPane.getChildren().remove(this.graveYardSize);
             this.graveYardSize = null;
@@ -130,7 +140,7 @@ public class FieldComponent {
         mainPane.getChildren().add(graveYardSize);
     }
 
-    private void buildDeckZone(int deckSize, Point2D deckZone) {
+    public void buildDeckZone(int deckSize, Point2D deckZone) {
         if(this.deckZoneSize != null){
             mainPane.getChildren().remove(this.deckZoneSize);
             this.deckZoneSize = null;
@@ -146,7 +156,7 @@ public class FieldComponent {
         mainPane.getChildren().add(deckZoneSize);
     }
 
-    private void buildUserInfo(String nickName, int life, Point2D userInfo) {
+    public void buildUserInfo(String nickName, int life, Point2D userInfo) {
         if(this.userInfo != null)
             mainPane.getChildren().remove(this.userInfo);
 
@@ -159,7 +169,7 @@ public class FieldComponent {
         mainPane.getChildren().add(this.userInfo);
     }
 
-    private void buildFieldZone(CardBoardInfo fieldZoneInfo, Point2D fieldZoneCoordinates) {
+    public void buildFieldZone(CardBoardInfo fieldZoneInfo, Point2D fieldZoneCoordinates) {
         if(fieldZone != null){
             mainPane.getChildren().remove(fieldZone);
             fieldZone = null;
@@ -168,7 +178,9 @@ public class FieldComponent {
             fieldZone = addCardToPane(fieldZoneInfo.getName(),fieldZoneCoordinates);
     }
 
-    private void buildHand(ArrayList<CardBoardInfo> hand){
+    public void buildHand(ArrayList<CardBoardInfo> hand){
+        ArrayList<String> handCardsName = new ArrayList<>();
+
         for (Rectangle card : this.hand) {
             if(card != null)
                 mainPane.getChildren().remove(card);
@@ -188,9 +200,6 @@ public class FieldComponent {
     }
 
     private void ShowGraveYard() {
-    }
-
-    private void selectCard(Rectangle card, MouseEvent event) {
     }
 
     private Rectangle addCardToPane(String cardName,Point2D coordinates){
@@ -217,7 +226,11 @@ public class FieldComponent {
         card.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                selectCard(card,event);
+                try {
+                    clickCard(card,event);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
             }
         });
 
@@ -233,7 +246,86 @@ public class FieldComponent {
         card.setLayoutX(coordinates.getX());
         card.setLayoutY(coordinates.getY());
         card.setFill(new ImagePattern(new Image(Tool.getCardPictureAddress(cardName))));
+        activateCard(card);
+        Rotate rotate = new Rotate();
+        //Setting the angle for the rotation
+        rotate.setAngle(20);
+        //Setting pivot points for the rotation
+        rotate.setPivotX(cardSize.getX()/2 + coordinates.getX());
+        rotate.setPivotY(cardSize.getY()/2 + coordinates.getY());
+        //Adding the transformation to rectangle2
+        card.getTransforms().addAll(rotate);
 
+        mainPane.getChildren().add(card);
+        return card;
+    }
+
+    private void clickCard(Rectangle card, MouseEvent event) throws Exception {
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+        if(!isActivePlayer && hand.contains(card)){
+            myController.showNewGameLog(Color.INDIANRED,"you cant select opponent hands card.",3000);
+            return;
+        }
+
+        switch (myController.gameStatus.getGameMode()) {
+            case NONE:
+                selectCard(card,event);
+                break;
+
+        }
+
+    }
+
+    private void selectCard(Rectangle card, MouseEvent event) throws Exception {
+        ArrayList<String> keyWords = new ArrayList<>();
+        keyWords.add("command");keyWords.add("selectCard");
+        String zone = "";
+        int id = 0;
+
+        if((id = getId(hand,card)) != -1)
+            zone = "hand_zone";
+
+        else if((id = getId(Arrays.asList(monsterZone),card)) != -1)
+            zone = "monster_zone";
+
+        else if((id = getId(Arrays.asList(spellZone),card)) != -1)
+            zone = "spell_zone";
+
+        else if(fieldZone == card)
+            zone = "field_zone";
+
+        keyWords.add("zone");keyWords.add(zone);
+        keyWords.add("id");keyWords.add(String.valueOf(id));
+        keyWords.add("isActivePlayer");keyWords.add(String.valueOf(isActivePlayer));
+        ApiMessage response = myController.responseFromApi(keyWords);
+        if(response.getType().equals(ApiMessage.error)){
+            myController.showNewGameLog(Color.RED,response.getMessage(),3000);
+        }else{
+            myController.showNewGameLog(Color.WHITE,"card selected.",3000);
+            myController.gameStatus.setSelectedCard(card);
+            myController.gameStatus.setGameMode(GameMode.SELECTED_CARD);
+            card.setStyle("-fx-effect: dropshadow(three-pass-box,  rebeccapurple, 50, 0.6, 0, 0)");
+            disableCard(card);
+            showCardInfo((String) new JSONObject(response.getMessage()).get("cardName"));
+        }
+    }
+
+    private void showCardInfo(String cardName) {
+        myController.cardInfo.setFill(new ImagePattern(new Image(cardName)));
+    }
+
+    public int getId(Collection searchIn, Object searchFor){
+        int ans = -1;
+        for (Object o : searchIn) {
+            ans++;
+            if(searchFor.equals(o))
+                return ans;
+        }
+        return -1;
+    }
+
+    private void activateCard(Rectangle card){
         card.setOnMouseDragEntered(new EventHandler<MouseDragEvent>() {
             @Override
             public void handle(MouseDragEvent event) {
@@ -249,21 +341,41 @@ public class FieldComponent {
         card.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                selectCard(card,event);
+                try {
+                    clickCard(card,event);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
             }
         });
-
-        Rotate rotate = new Rotate();
-        //Setting the angle for the rotation
-        rotate.setAngle(20);
-        //Setting pivot points for the rotation
-        rotate.setPivotX(cardSize.getX()/2 + coordinates.getX());
-        rotate.setPivotY(cardSize.getY()/2 + coordinates.getY());
-        //Adding the transformation to rectangle2
-        card.getTransforms().addAll(rotate);
-
-        mainPane.getChildren().add(card);
-        return card;
     }
 
+    private void disableCard(Rectangle card) {
+        card.setOnMouseDragEntered(null);
+        card.setOnMouseDragExited(null);
+        card.setOnMouseClicked(null);
+    }
+
+    public static Point2D getCardSize() {
+        return cardSize;
+    }
+
+    public Rectangle[] getMonsterZone() {
+        return monsterZone;
+    }
+
+    public Rectangle[] getSpellZone() {
+        return spellZone;
+    }
+
+    public Rectangle getFieldZone() {
+        return fieldZone;
+    }
+
+    public ArrayList<Rectangle> getHand() {
+        return hand;
+    }
+
+    public void damage(int damage) {
+    }
 }

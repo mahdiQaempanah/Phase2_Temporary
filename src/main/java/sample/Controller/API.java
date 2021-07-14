@@ -181,7 +181,7 @@ public class API {
                 monsterMode = Mode.ATTACK;
             else
                 monsterMode = Mode.DEFENSE;
-            return new JSONObject(gameController.changeMonsterMode(monsterMode));
+            return new JSONObject(gameController.changeMonsterMode());
         }
         if(commandType.equals("tribute")){
             int numberOfTribute = (int) request.get("number");

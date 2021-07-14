@@ -25,13 +25,10 @@ import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import sample.Controller.ProgramController;
 import sample.View.Graphic.LoginMenu;
+import sample.View.Graphic.WelcomeMenu;
 
 public class Main extends Application {
-    public static Stage primaryStage;
-    GridPane grid = new GridPane();
-    Button button = new Button("start");
-    LoginMenu loginMenu = new LoginMenu();
-
+    public static Point2D stageSize = new Point2D(1950, 1030);
 
     public static void main(String[] args) throws Exception {
         launch(args);
@@ -39,91 +36,12 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        BorderPane root = new BorderPane();
-        primaryStage.setTitle("yo-gy-oh");
-        // primaryStage.getIcons().add(new Image(getClass().getResource("resources/logo.png").toExternalForm()));
-        Scene scene = new Scene(root, 800, 600);
-
-
-        Image backGroundImage = new Image(getClass().getResource("..\\Assets\\yugioh wallpaper.jpg").toExternalForm());
-        BackgroundSize bSize = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false,
-                false, true, false);
-        root.setBackground(new Background(new BackgroundImage(backGroundImage,
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundPosition.CENTER,
-                bSize)));
-
-
-        Image startGifImage = new Image(getClass().getResource("..\\Assets\\Logos\\_images_text_yugioh.dds2.png").toExternalForm());
-        ImageView StartGifImageView = new ImageView(startGifImage);
-        // set background for scene
-        primaryStage.setScene(scene);
-        //set gif for first scene
-        StartGifImageView.setImage(startGifImage);
-        StartGifImageView.setFitHeight(150);
-        StartGifImageView.setFitWidth(200);
-        root.setCenter(StartGifImageView);
-        /// set start button
-
-        Image startButtonImage = new Image(getClass().getResource("..\\Assets\\start.png").toExternalForm());
-        ImageView startButtonImageView = new ImageView(startButtonImage);
-        startButtonImageView.setFitWidth(50);
-        startButtonImageView.setFitHeight(50);
-
-
-        root.setBottom(startButtonImageView);
-
-        BorderPane.setMargin(startButtonImageView, new Insets(20));
-
-        //set action and animation hover for start button
-
-        startButtonImageView.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                startButtonImageView.setEffect(new DropShadow());
-            }
-        });
-
-
-        startButtonImageView.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                startButtonImageView.setEffect(null);
-            }
-        });
-
-        startButtonImageView.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                try {
-                    loginMenu.start(primaryStage);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-
-            }
-        });
-
-        BorderPane.setAlignment(root.getBottom(), Pos.CENTER);
-        button.setAlignment(Pos.CENTER);
-
-
-        //end
-
-        Media media = new Media(getClass().getResource("..\\sounds yugioh/DP_APPEAR.mp3").toExternalForm());
-        MediaPlayer mediaPlayer = new MediaPlayer(media);
-        mediaPlayer.setCycleCount(1);
-
-        mediaPlayer.play();
-
-
-        primaryStage.show();
-
-        //set initialize media
-
-
+        primaryStage.setWidth(stageSize.getX());
+        primaryStage.setHeight(stageSize.getY());
+        primaryStage.setTitle("Yu Gi Oh!");
+        primaryStage.getIcons().add(new Image(getClass().getResource("../Image/Icon.png").toExternalForm()));
+        primaryStage.setResizable(false);
+        new WelcomeMenu().start(primaryStage);
     }
 }
 //taghirat dar code ghabli

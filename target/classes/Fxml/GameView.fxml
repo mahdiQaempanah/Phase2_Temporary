@@ -41,5 +41,8 @@
       <Button layoutX="2.0" layoutY="903.0" mnemonicParsing="false" onAction="#handleCancel" prefHeight="40.0" prefWidth="91.0" style="-fx-cursor: hand; -fx-background-color: #ee00ff;" text="cancel" textFill="WHITE" />
       <Button layoutX="284.0" layoutY="903.0" mnemonicParsing="false" onAction="#handleEnd" prefHeight="40.0" prefWidth="91.0" style="-fx-cursor: hand; -fx-background-color: #02c18b;" text="end game" textFill="WHITE" />
       <Rectangle fx:id="cardInfo" arcHeight="5.0" arcWidth="5.0" fill="BLACK" height="220.0" layoutX="24.0" layoutY="186.0" stroke="BLACK" strokeType="INSIDE" width="186.0" />
+      <Button layoutX="377.0" layoutY="859.0" mnemonicParsing="false" onAction="#handleChangeMonsterMode" prefHeight="40.0" prefWidth="91.0" style="-fx-cursor: hand; -fx-background-color: #61df00;" text="change mode" textFill="WHITE" />
+      <Button layoutX="377.0" layoutY="902.0" mnemonicParsing="false" onAction="#handleSetSpell" prefHeight="40.0" prefWidth="91.0" style="-fx-cursor: hand; -fx-background-color: #bed900;" text="set spell" textFill="WHITE" />
+      <Button layoutX="470.0" layoutY="859.0" mnemonicParsing="false" onAction="#handleActiveSpell" prefHeight="40.0" prefWidth="91.0" style="-fx-cursor: hand; -fx-background-color: #eca500;" text="active spell" textFill="WHITE" />
    </children>
 </AnchorPane>

@@ -309,7 +309,7 @@ public class Player {
             this.getField().killMonsterCard(sacrifiseCard, game);
         }
         summon(ritualMonsterCard);
-        changeMode(ritualMonsterCard, mode);
+        changeMode(ritualMonsterCard);
     }
 
 

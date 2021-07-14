@@ -21,17 +21,62 @@ public class API {
     public JSONObject run(JSONObject request) throws Exception {
         String commandType = request.getString("command");
         //import cards
+        if(commandType.equals("add_card_to_hand")){
+            return new JSONObject(gameController.addCardFromDeckToHand());
+        }
+
+        if(commandType.equals("nextPhase")) {
+            return new JSONObject(gameController.nextPhase());
+        }
+
+        if(commandType.equals("get_phase")){
+            return new JSONObject(gameController.getPhase());
+        }
+
+        if(commandType.equals("selectCard")){
+            String zone = (String) request.get("zone");
+            CardAddress selectedCardAddress = null;
+            switch (zone){
+                case "monster_zone":
+                    selectedCardAddress = CardAddress.MONSTER_ZONE;
+                    break;
+                case "spell_zone":
+                    if(!(Boolean.parseBoolean( request.get("isActivePlayer").toString())))
+                        selectedCardAddress = CardAddress.SPELL_ZONE;
+                    else
+                        selectedCardAddress = CardAddress.OPPONENT_SPELL_ZONE;
+                    break;
+                case "hand_zone":
+                    selectedCardAddress = CardAddress.HAND;
+                    break;
+                case "field_zone":
+                    if(!(Boolean.parseBoolean( request.get("isActivePlayer").toString())))
+                        selectedCardAddress = CardAddress.FIELD_ZONE;
+                    else
+                        selectedCardAddress = CardAddress.OPPONENT_FIELD_ZONE;
+                    break;
+            }
+            return new JSONObject(gameController.selectCard(selectedCardAddress, Integer.parseInt(request.get("id").toString())));
+        }
+
+        if(commandType.equals("summon")){
+            return new JSONObject(gameController.summonMonster());
+        }
+
+        if(commandType.equals("attack")){
+            return new JSONObject(gameController.attack((Integer) request.get("id")));
+        }
+
+        if(commandType.equals("directAttack")){
+            return new JSONObject(gameController.directAttack());
+        }
+
+
         if(commandType.equals("show_scorboard")){
             return new JSONObject(programController.showScoreboard());
         }
-        if(commandType.equals("next_phase")) {
-            return new JSONObject(gameController.nextPhase());
-        }
         if(commandType.equals("buyCard")){
             return new JSONObject(programController.buyCard((String) request.get("cardName")));
-        }
-        if(commandType.equals("get_phase")){
-            return new JSONObject(gameController.getPhase());
         }
         if(commandType.equals("shop_show_all")) {
             return new JSONObject(programController.showShopCards());
@@ -47,12 +92,6 @@ public class API {
         }
         if(commandType.equals("show_deck_all")){
             return new JSONObject(programController.showAllDeck());
-        }
-        if(commandType.equals("summon_card")){
-            return new JSONObject(gameController.summonMonster());
-        }
-        if(commandType.equals("flip_summon_card")){
-            return new JSONObject(gameController.flipSummonMonster());
         }
         if(commandType.equals("back_select")){
             return new JSONObject(gameController.deselectCard());
@@ -140,9 +179,6 @@ public class API {
                 monsterMode = Mode.DEFENSE;
             return new JSONObject(gameController.changeMonsterMode(monsterMode));
         }
-        if(commandType.equals("add_card_to_hand")){
-            return new JSONObject(gameController.addCardFromDeckToHand());
-        }
         if(commandType.equals("tribute")){
             int numberOfTribute = (int) request.get("number");
             if(numberOfTribute == 1){
@@ -155,31 +191,7 @@ public class API {
                 return new JSONObject(gameController.getTributesForSummonMonster(address1,address2));
             }
         }
-        if(commandType.equals("select_card")){
-            String zone = (String) request.get("zone");
-            CardAddress selectedCardAddress = null;
-            switch (zone){
-                case "monster_zone":
-                    selectedCardAddress = CardAddress.MONSTER_ZONE;
-                    break;
-                case "spell_zone":
-                    if(!(Boolean.parseBoolean( request.get("side").toString())))
-                        selectedCardAddress = CardAddress.SPELL_ZONE;
-                    else
-                        selectedCardAddress = CardAddress.OPPONENT_SPELL_ZONE;
-                    break;
-                case "hand_zone":
-                    selectedCardAddress = CardAddress.HAND;
-                    break;
-                case "field_zone":
-                    if(!(Boolean.parseBoolean( request.get("side").toString())))
-                        selectedCardAddress = CardAddress.FIELD_ZONE;
-                    else
-                        selectedCardAddress = CardAddress.OPPONENT_FIELD_ZONE;
-                    break;
-            }
-            return new JSONObject(gameController.selectCard(selectedCardAddress, Integer.parseInt( request.get("place").toString())));
-        }
+
         return null;
     }
 }

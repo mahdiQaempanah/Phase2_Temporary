@@ -21,9 +21,9 @@
       </ImageView>
       <AnchorPane layoutX="396.0" layoutY="498.0" prefHeight="5.0" prefWidth="1158.0" style="-fx-background-color: white;" />
       <Button fx:id="pauseButton" layoutX="1.0" layoutY="1.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="102.0" style="-fx-background-color: #a60679;" text="Pause" textFill="WHITE" />
-      <Label alignment="CENTER" layoutX="458.0" layoutY="378.0" prefHeight="49.0" prefWidth="102.0" text="+2" textFill="WHITE">
+      <Label fx:id="gameLog" layoutY="41.0" prefHeight="40.0" prefWidth="204.0" text="Label" textFill="WHITE">
          <font>
-            <Font name="Webdings" size="35.0" />
+            <Font size="21.0" />
          </font>
       </Label>
    </children>

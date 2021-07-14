@@ -4,11 +4,14 @@ import sample.Model.Game.Card.MonsterCard.MonsterCard;
 import sample.Model.Game.Card.SpellCard.SpellCard;
 import sample.Model.Game.Player;
 
+import java.util.ArrayList;
+
 public class FieldJson {
     private String nickName;
     private int life;
     private CardBoardInfo monsterZone[] = new CardBoardInfo[5];
     private CardBoardInfo spellZone[] = new CardBoardInfo[5];
+    private ArrayList<CardBoardInfo> hand;
     private CardBoardInfo fieldZone;
     private int graveyardSize;
     private int handSize;
@@ -71,5 +74,9 @@ public class FieldJson {
 
     public int getDeckSize() {
         return deckSize;
+    }
+
+    public ArrayList<CardBoardInfo> getHand() {
+        return hand;
     }
 }

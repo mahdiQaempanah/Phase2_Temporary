@@ -256,8 +256,11 @@ public class Player {
         this.getField().addToMonsterZone(monsterCard);
     }
 
-    public void changeMode(MonsterCard monsterCard ,Mode mode){
-        monsterCard.setMode(mode);
+    public void changeMode(MonsterCard monsterCard){
+        Mode newMode = Mode.ATTACK;
+        if(newMode == monsterCard.getMode())
+            newMode = Mode.DEFENSE;
+        monsterCard.setMode(newMode);
         monsterCard.setChangeModeInTurn(true);
     }
 

@@ -27,24 +27,18 @@ import sample.Controller.ProgramController;
 import sample.View.Graphic.LoginMenu;
 
 public class Main extends Application {
-
-public static Stage primaryStage;
-        GridPane grid = new GridPane();
-        Button button = new Button("start");
-        LoginMenu loginMenu=new LoginMenu();
-
+    public static Stage primaryStage;
+    GridPane grid = new GridPane();
+    Button button = new Button("start");
+    LoginMenu loginMenu = new LoginMenu();
 
 
-
-
-public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         launch(args);
-        }
+    }
 
-@Override
-public void start(Stage primaryStage) throws Exception {
-
-
+    @Override
+    public void start(Stage primaryStage) throws Exception {
         BorderPane root = new BorderPane();
         primaryStage.setTitle("yo-gy-oh");
         // primaryStage.getIcons().add(new Image(getClass().getResource("resources/logo.png").toExternalForm()));
@@ -53,41 +47,24 @@ public void start(Stage primaryStage) throws Exception {
 
         Image backGroundImage = new Image(getClass().getResource("..\\Assets\\yugioh wallpaper.jpg").toExternalForm());
         BackgroundSize bSize = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false,
-        false, true, false);
+                false, true, false);
         root.setBackground(new Background(new BackgroundImage(backGroundImage,
-        BackgroundRepeat.NO_REPEAT,
-        BackgroundRepeat.NO_REPEAT,
-        BackgroundPosition.CENTER,
-        bSize)));
-
-
-
-
-
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                bSize)));
 
 
         Image startGifImage = new Image(getClass().getResource("..\\Assets\\Logos\\_images_text_yugioh.dds2.png").toExternalForm());
         ImageView StartGifImageView = new ImageView(startGifImage);
-
-
-
-
         // set background for scene
-
-
         primaryStage.setScene(scene);
-
         //set gif for first scene
-
-
         StartGifImageView.setImage(startGifImage);
         StartGifImageView.setFitHeight(150);
         StartGifImageView.setFitWidth(200);
         root.setCenter(StartGifImageView);
-
         /// set start button
-
-
 
         Image startButtonImage = new Image(getClass().getResource("..\\Assets\\start.png").toExternalForm());
         ImageView startButtonImageView = new ImageView(startButtonImage);
@@ -102,31 +79,31 @@ public void start(Stage primaryStage) throws Exception {
         //set action and animation hover for start button
 
         startButtonImageView.setOnMouseEntered(new EventHandler<MouseEvent>() {
-@Override
-public void handle(MouseEvent event) {
-        startButtonImageView.setEffect(new DropShadow());
-        }
+            @Override
+            public void handle(MouseEvent event) {
+                startButtonImageView.setEffect(new DropShadow());
+            }
         });
 
 
         startButtonImageView.setOnMouseExited(new EventHandler<MouseEvent>() {
-@Override
-public void handle(MouseEvent event) {
-        startButtonImageView.setEffect(null);
-        }
+            @Override
+            public void handle(MouseEvent event) {
+                startButtonImageView.setEffect(null);
+            }
         });
 
         startButtonImageView.setOnMouseClicked(new EventHandler<MouseEvent>() {
-@Override
-public void handle(MouseEvent event) {
-        try {
-        loginMenu.start(primaryStage);
-        } catch (Exception e) {
-        e.printStackTrace();
-        }
+            @Override
+            public void handle(MouseEvent event) {
+                try {
+                    loginMenu.start(primaryStage);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
 
-}
+            }
         });
 
         BorderPane.setAlignment(root.getBottom(), Pos.CENTER);
@@ -147,8 +124,6 @@ public void handle(MouseEvent event) {
         //set initialize media
 
 
-
-
-
-        }}
+    }
+}
 //taghirat dar code ghabli

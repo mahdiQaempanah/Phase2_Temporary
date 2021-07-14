@@ -22,10 +22,7 @@ import sample.Controller.API;
 import sample.Model.ApiMessage;
 import sample.Model.Game.Phase;
 import sample.Model.JsonObject.BoardJson;
-import sample.View.Components.BoardComponent;
-import sample.View.Components.GameLog;
-import sample.View.Components.GameMode;
-import sample.View.Components.GameStatus;
+import sample.View.Components.*;
 
 
 import java.util.ArrayList;
@@ -137,12 +134,15 @@ public class GameViewController {
         gameLog.add(color,message,showTime);
     }
 
-
     private void resetBoard() throws Exception {
+        board.reset(getBoard());
+    }
+
+    private BoardJson getBoard() throws Exception {
         ArrayList<String> keyWords = new ArrayList<>();
         keyWords.add("command");keyWords.add("get_board");
         ApiMessage newBoard = responseFromApi(keyWords);
-        board.reset(new Gson().fromJson(newBoard.getMessage(), BoardJson.class));
+        return new Gson().fromJson(newBoard.getMessage(), BoardJson.class);
     }
 
     public ApiMessage responseFromApi(ArrayList<String> keyWords) throws Exception {
@@ -153,7 +153,6 @@ public class GameViewController {
         JSONObject jsonAns = api.run(message);
         return new Gson().fromJson(String.valueOf(jsonAns),ApiMessage.class);
     }
-
 
     public void handleDeselect(ActionEvent actionEvent) {
         if(gameStatus.getGameMode() == GameMode.SELECTED_CARD){
@@ -196,10 +195,37 @@ public class GameViewController {
         }
     }
 
-    private void summonSelectedCard() {
+    private void summonSelectedCard() throws Exception {
+        gameStatus.reset(null);
+        BoardJson newBoard = getBoard();
+        board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+        board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
     }
 
-    public void handleSet(ActionEvent actionEvent) {
+    public void handleSetMonster(ActionEvent actionEvent) throws Exception {
+        if(gameStatus.getGameMode() == GameMode.SELECTED_CARD){
+            ArrayList<String> keyWords = new ArrayList<>();
+            keyWords.add("command");keyWords.add("setMonster");
+            ApiMessage response = responseFromApi(keyWords);
+            if(response.getType().equals(ApiMessage.error)){
+                showNewGameLog(Color.DARKRED,response.getMessage(),2000);
+                return;
+            }
+            int tributeCount = (new JSONObject(response.getMessage())).getInt("tribute");
+            gameStatus.setGameMode(GameMode.SET_MONSTER_MODE);
+            gameStatus.setTributes(new ArrayList<>());
+            for(int i = 0 ; i < tributeCount ; i++)
+                gameStatus.getTributes().add(null);
+            if(tributeCount == 0)
+                setMonsterSelectedCard();
+        }
+    }
+
+    private void setMonsterSelectedCard() throws Exception {
+        gameStatus.reset(null);
+        BoardJson newBoard = getBoard();
+        board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+        board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
     }
 
     public void handleAttack(ActionEvent actionEvent) {
@@ -225,8 +251,25 @@ public class GameViewController {
         gameStatus.reset(actionEvent);
     }
 
-    public void handleEnd(ActionEvent actionEvent) {
+    public void handleChangeMonsterMode(ActionEvent actionEvent) throws Exception {
+        ArrayList<String> keyWords = new ArrayList<>();
+        keyWords.add("command");keyWords.add("changeMonsterMode");
+        ApiMessage response = responseFromApi(keyWords);
+        if(response.getType().equals(ApiMessage.error)){
+            showNewGameLog(Color.DARKRED,response.getMessage(),2000);
+            return;
+        }
+        gameStatus.reset(null);
+        BoardJson newBoard = getBoard();
+        board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
     }
 
+    public void handleSetSpell(ActionEvent actionEvent) {
+    }
 
+    public void handleActiveSpell(ActionEvent actionEvent) {
+    }
+
+    public void handleEnd(ActionEvent actionEvent) {
+    }
 }

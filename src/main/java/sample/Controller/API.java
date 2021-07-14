@@ -63,6 +63,14 @@ public class API {
             return new JSONObject(gameController.summonMonster());
         }
 
+        if(commandType.equals("setMonster")){
+            return new JSONObject(gameController.setMonster());
+        }
+
+        if(commandType.equals("setMonsterMode")){
+            return new JSONObject(gameController.changeMonsterMode());
+        }
+
         if(commandType.equals("attack")){
             return new JSONObject(gameController.attack((Integer) request.get("id")));
         }
@@ -99,12 +107,8 @@ public class API {
         if(commandType.equals("show_selected_card")){
             return new JSONObject(gameController.getSelectedCard());
         }
-        if(commandType.equals("attack")){
-            return new JSONObject(gameController.attack((Integer) request.get("place")));
-        }
-        if(commandType.equals("attack_direct")){
-            return new JSONObject(gameController.directAttack());
-        }
+
+
         if(commandType.equals("active_effect")){
             return new JSONObject(gameController.activateEffect());
             //check

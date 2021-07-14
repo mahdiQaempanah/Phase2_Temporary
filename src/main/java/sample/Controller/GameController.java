@@ -196,7 +196,7 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,"set successfully");
     }
 
-    public ApiMessage changeMonsterMode(Mode newMode) throws Exception {
+    public ApiMessage changeMonsterMode() throws Exception {
 
         if(game.getActivePlayer().getSelectedCard() == null)
             return new ApiMessage(ApiMessage.error,"no card is selected yet");
@@ -209,13 +209,10 @@ public class GameController{
 
         MonsterCard selectedCard = (MonsterCard) game.getActivePlayer().getSelectedCard();
 
-        if(newMode != selectedCard.getMode())
-            return new ApiMessage(ApiMessage.error,"this card is already in the wanted position");
-
         if(selectedCard.isChangeModeInTurn())
             return new ApiMessage(ApiMessage.error,"you already changed this card position in this turn");
 
-        game.getActivePlayer().changeMode(selectedCard, newMode);
+        game.getActivePlayer().changeMode(selectedCard);
         game.addToGameLog(GameLogType.CHANGE_MONSTER_MODE,selectedCard.hashCode());
         return new ApiMessage(ApiMessage.successful,"monster card position changed successfully");
     }

@@ -5,6 +5,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane fx:id="mainPane" prefHeight="1030.0" prefWidth="1950.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.View.GameViewController">
@@ -21,10 +22,24 @@
       </ImageView>
       <AnchorPane layoutX="396.0" layoutY="498.0" prefHeight="5.0" prefWidth="1158.0" style="-fx-background-color: white;" />
       <Button fx:id="pauseButton" layoutX="1.0" layoutY="1.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="102.0" style="-fx-background-color: #a60679;" text="Pause" textFill="WHITE" />
-      <Label fx:id="gameLog" layoutY="41.0" prefHeight="40.0" prefWidth="204.0" text="Label" textFill="WHITE">
+      <Label fx:id="gameLogLabel" layoutY="41.0" prefHeight="40.0" prefWidth="204.0" text="a." textFill="WHITE">
          <font>
             <Font size="21.0" />
          </font>
       </Label>
+      <Label fx:id="phaseLabel" layoutX="24.0" layoutY="126.0" prefHeight="60.0" prefWidth="186.0" text="Phase: 1" textFill="WHITE">
+         <font>
+            <Font name="Arial Rounded MT Bold" size="22.0" />
+         </font>
+      </Label>
+      <Button layoutX="2.0" layoutY="858.0" mnemonicParsing="false" onAction="#handleDeselect" prefHeight="40.0" prefWidth="91.0" style="-fx-cursor: hand; -fx-background-color: #ef0d98;" text="deselect" textFill="WHITE" />
+      <Button layoutX="284.0" layoutY="859.0" mnemonicParsing="false" onAction="#handleNextPhase" prefHeight="40.0" prefWidth="91.0" style="-fx-cursor: hand; -fx-background-color: #00a7d1;" text="next Phase" textFill="WHITE" />
+      <Button layoutX="96.0" layoutY="858.0" mnemonicParsing="false" onAction="#HandleSummon" prefHeight="40.0" prefWidth="91.0" style="-fx-cursor: hand; -fx-background-color: #c300ff;" text="summon" textFill="WHITE" />
+      <Button layoutX="96.0" layoutY="903.0" mnemonicParsing="false" onAction="#handleSetMonster" prefHeight="40.0" prefWidth="91.0" style="-fx-cursor: hand; -fx-background-color: #7b00ff;" text="set monster" textFill="WHITE" />
+      <Button layoutX="190.0" layoutY="859.0" mnemonicParsing="false" onAction="#handleAttack" prefHeight="40.0" prefWidth="91.0" style="-fx-cursor: hand; -fx-background-color: #230fff;" text="attack" textFill="WHITE" />
+      <Button layoutX="190.0" layoutY="903.0" mnemonicParsing="false" onAction="#handleDirectAtk" prefHeight="40.0" prefWidth="91.0" style="-fx-cursor: hand; -fx-background-color: #00a1ff;" text="direct atk" textFill="WHITE" />
+      <Button layoutX="2.0" layoutY="903.0" mnemonicParsing="false" onAction="#handleCancel" prefHeight="40.0" prefWidth="91.0" style="-fx-cursor: hand; -fx-background-color: #ee00ff;" text="cancel" textFill="WHITE" />
+      <Button layoutX="284.0" layoutY="903.0" mnemonicParsing="false" onAction="#handleEnd" prefHeight="40.0" prefWidth="91.0" style="-fx-cursor: hand; -fx-background-color: #02c18b;" text="end game" textFill="WHITE" />
+      <Rectangle fx:id="cardInfo" arcHeight="5.0" arcWidth="5.0" fill="BLACK" height="220.0" layoutX="24.0" layoutY="186.0" stroke="BLACK" strokeType="INSIDE" width="186.0" />
    </children>
 </AnchorPane>

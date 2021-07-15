@@ -159,7 +159,7 @@ public class LoginMenu extends Application {
 
                 if (!response.get("type").toString().equals("error") && (!userText.getText().isEmpty()) && (!passtext.getText().isEmpty())) {
                     onTMessaeg.setText(response.get("message").toString());
-                    mainMenu = new MainMenu(userText.getText(), nickText.getText());
+                    mainMenu = new MainMenu(userText.getText(), nickText.getText(),request);
                     mainMenu.setPriorMenu(myWelcomeMenu);
                     try {
                         mainMenu.start(primaryStage);

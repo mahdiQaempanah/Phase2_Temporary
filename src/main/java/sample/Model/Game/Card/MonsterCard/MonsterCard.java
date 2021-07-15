@@ -123,33 +123,40 @@ public class MonsterCard extends Card{
 
     public AttackInfo attack(Game game, MonsterCard targetCard){
         int powerDiff = 0;
+        targetCard.setStatus(Status.SUMMON);
         if(targetCard.getMode().equals(Mode.ATTACK)){
             powerDiff = atk - targetCard.getAtk();
             if(powerDiff>0){
-                game.getActivePlayer().getField().killMonsterCard(targetCard,game);
+                game.getInactivePlayer().getField().killMonsterCard(targetCard,game);
                 game.getInactivePlayer().decreaseLp(powerDiff);
+                return new AttackInfo(targetCard.getName(),"inactive player",powerDiff);
             }
             else if(powerDiff<0){
                 game.getActivePlayer().getField().killMonsterCard(this, game);
                 game.getActivePlayer().decreaseLp(-powerDiff);
+                return new AttackInfo(this.getName(),"active player",-powerDiff);
             }
             else{
                 game.getActivePlayer().getField().killMonsterCard(this, game);
                 game.getInactivePlayer().getField().killMonsterCard(targetCard, game);
+                return new AttackInfo("","",0);
             }
         }
         else{
             powerDiff = atk - targetCard.getDef();
             if(powerDiff>0){
                 game.getInactivePlayer().getField().killMonsterCard(targetCard, game);
+                return new AttackInfo(targetCard.getName(),"inactive player",0);
             }
             else if(powerDiff<0){
                 game.getActivePlayer().decreaseLp(-powerDiff);
+                return new AttackInfo("","active player",-powerDiff);
             }
             else;
         }
         setMonsterAttackInTurn(true);
-        return new AttackInfo(targetCard.getName(),targetCard.getAtk(),targetCard.getDef(), targetCard.getStatus(),targetCard.getMode(),this.getAtk()) ;
+        return null;
+        //return new AttackInfo(targetCard.getName(),targetCard.getAtk(),targetCard.getDef(), targetCard.getStatus(),targetCard.getMode(),this.getAtk()) ;
     }
 
     public void directAttack(Game game){

@@ -34,13 +34,19 @@ public class Field {
 
     public void addToMonsterZone(MonsterCard monsterCard){
         for (int index = 0; index < 5; index++) {
-            if(monsterZone[index]==null) monsterZone[index] = monsterCard;
+            if(monsterZone[index]==null){
+                monsterZone[index] = monsterCard;
+                return;
+            }
         }
     }
 
     public void addToSpellZone(SpellCard spellCard){
         for (int index = 0; index < 5; index++) {
-            if(spellZone[index]==null) spellZone[index] = spellCard;
+            if(spellZone[index]==null){
+                spellZone[index] = spellCard;
+                return;
+            }
         } 
     }
 

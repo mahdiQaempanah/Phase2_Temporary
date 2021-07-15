@@ -16,7 +16,7 @@ public class ActivePlayerCardsCoordinates {
         graveYard = new Point2D(1397,507);
         fieldZone = new Point2D(461,507);
         userInfo = new Point2D(394,669);
-        startHand = new Point2D(620,902);
+        startHand = new Point2D(620,852);
 
         spellZone = new Point2D[5];
         spellZone[0] = new Point2D(929,707);

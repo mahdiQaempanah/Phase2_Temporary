@@ -32,8 +32,8 @@ public class GameController{
     }
 
     public ApiMessage createGame(AccountJson player1, AccountJson player2, int rounds) throws Exception {
-        Player playerOne = new Player(player1.getNickname(),cardJsonToString(player1.getActiveDeck().getMainDeck()),cardJsonToString(player1.getActiveDeck().getSideDeck()),0);
-        Player playerTwo = new Player(player2.getNickname(),cardJsonToString(player2.getActiveDeck().getMainDeck()),cardJsonToString(player2.getActiveDeck().getSideDeck()),0);
+        Player playerOne = new Player(player1.getNickname(),cardJsonToString(player1.getActiveDeck().getMainDeck()),cardJsonToString(player1.getActiveDeck().getSideDeck()));
+        Player playerTwo = new Player(player2.getNickname(),cardJsonToString(player2.getActiveDeck().getMainDeck()),cardJsonToString(player2.getActiveDeck().getSideDeck()));
         game = new Game(playerOne, playerTwo, rounds);
         return new ApiMessage(ApiMessage.successful,"{\"firstTurn\":"+(game.getActivePlayer() == game.getPlayer2())+"}");
     }
@@ -78,7 +78,7 @@ public class GameController{
         }
         game.getActivePlayer().setSelectedCard(selectedCard);
         game.addToGameLog(GameLogType.SELECT_CARD, selectedCard.hashCode());
-        return new ApiMessage(ApiMessage.successful,"{\"cardName\"=\""+game.getActivePlayer().getSelectedCard().getName()+"\"}");
+        return new ApiMessage(ApiMessage.successful,"{\"cardName\":\""+game.getActivePlayer().getSelectedCard().getName()+"\"}");
     }
 
     public ApiMessage deselectCard() throws Exception {
@@ -193,7 +193,7 @@ public class GameController{
 
         game.getActivePlayer().setMonster((MonsterCard) game.getActivePlayer().getSelectedCard());
         game.addToGameLog(GameLogType.SET_MONSTER,game.getActivePlayer().getSelectedCard().hashCode());
-        return new ApiMessage(ApiMessage.successful,"set successfully");
+        return new ApiMessage(ApiMessage.successful,"{\"tribute\":0}");
     }
 
     public ApiMessage changeMonsterMode() throws Exception {
@@ -302,7 +302,7 @@ public class GameController{
     public ApiMessage isRoundOver() throws Exception {
         Player looser;
         Player winner;
-        if(game.getActivePlayer().getLp() <= 0){
+        if(game.getActivePlayer().getLp() <= 0 || (game.getActivePlayer().getCards().size() == 0 &&  game.getPhase() == Phase.DRAW_PHASE)){
             looser = game.getActivePlayer();
             winner = game.getInactivePlayer();
             return endRound(looser,winner);
@@ -312,7 +312,9 @@ public class GameController{
             winner = game.getActivePlayer();
             return endRound(looser,winner);
         }
-        return null;
+        JSONObject ans = new JSONObject();
+        ans.put("isOver",false);
+        return new ApiMessage(ApiMessage.successful,ans.toString());
     }
 
     private ApiMessage endRound(Player looser, Player winner) throws Exception {

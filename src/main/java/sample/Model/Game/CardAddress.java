@@ -6,5 +6,5 @@ public enum CardAddress {
     OPPONENT_SPELL_ZONE,
     FIELD_ZONE,
     OPPONENT_FIELD_ZONE,
-    HAND
+    HAND,
 }

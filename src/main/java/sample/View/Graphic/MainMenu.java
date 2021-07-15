@@ -20,6 +20,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import sample.Controller.API;
 
 
 import java.io.FileInputStream;
@@ -33,15 +34,17 @@ public class MainMenu extends Application {
     public HBox optionsBox = new HBox();
     public String username;
     public WelcomeMenu myWelcomeMenu;
+    public API api;
 
     //  public CardMenu cardMenu=new CardMenu();
     //  public ProfileMenu profileMenu=new ProfileMenu();
     //  public ScoreBoardMenu scoreBoardMenu=new ScoreBoardMenu();
     //  public ShopMenu shopMenu=new ShopMenu();
 
-    public MainMenu(String username, String nickname) {
+    public MainMenu(String username, String nickname, API api) {
         this.username = username;
         this.nickname = nickname;
+        this.api = api;
     }
 
     @Override
@@ -123,11 +126,15 @@ public class MainMenu extends Application {
 
         optionsBox.getChildren().add(duelButton);
         addEffectToButton(duelButton);
+        MainMenu me = this;
         duelButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                //set proir
-
+                try {
+                    new BeforeDuelMenu(me,api,primaryStage).start(primaryStage);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
             }
         });
     }
@@ -147,7 +154,7 @@ public class MainMenu extends Application {
             public void handle(MouseEvent event) {
                 try {
                     ProfileMenu profileMenu = new ProfileMenu();
-                    profileMenu.setPriorMenu(new MainMenu(username, nickname));
+                    profileMenu.setPriorMenu(new MainMenu(username, nickname, api));
                     profileMenu.start(primaryStage);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -198,35 +205,15 @@ public class MainMenu extends Application {
         scoreboardButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                //set prior
-
                 try {
                     ScoreBoardMenu scoreBoardMenu = new ScoreBoardMenu();
-                    scoreBoardMenu.setPriorMenu(new MainMenu(username, nickname));
+                    scoreBoardMenu.setPriorMenu(new MainMenu(username, nickname, api));
                     scoreBoardMenu.start(primaryStage);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-
             }
         });
-    }
-
-    private void buildLogoutButton() {
-        logOutButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    myWelcomeMenu.start(primaryStage);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        logOutButton.setPadding(new Insets(20));
-        logOutButton.setStyle("-fx-padding: 20");
-        BorderPane.setAlignment(logOutButton, Pos.CENTER);
     }
 
     private void buildShopButton(BorderPane root) {
@@ -252,6 +239,22 @@ public class MainMenu extends Application {
         });
     }
 
+    private void buildLogoutButton() {
+        logOutButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    myWelcomeMenu.start(primaryStage);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        logOutButton.setPadding(new Insets(20));
+        logOutButton.setStyle("-fx-padding: 20");
+        BorderPane.setAlignment(logOutButton, Pos.CENTER);
+    }
+
     private void addEffectToButton(Rectangle button){
         button.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
@@ -274,49 +277,5 @@ public class MainMenu extends Application {
     public void setPriorMenu(WelcomeMenu welcomeMenu) {
         this.myWelcomeMenu = welcomeMenu;
     }
-
-    /*
-
-    public boolean startDuel(String command) throws Exception {
-
-        DuelNewGame duelNewGame = new DuelNewGame();
-        DuelNewGame duelNewGame1 = (DuelNewGame) duelNewGame.run(command);
-
-        if (duelNewGame1.secondPlayerUsername != null) {
-
-            if ( duelNewGame1.ai) System.out.println("invalid command");
-
-            else {
-                Integer round = duelNewGame1.round;
-                JSONObject response = js_Pass("command", "duel_new_game", "Opponent", duelNewGame1.secondPlayerUsername,
-                        "round", Integer.toString( duelNewGame1.round), "opponent_type", "sec_player");
-
-                if (response.get("type").equals("error")) System.out.println(response.get("message"));
-
-                else {
-                    System.out.println(response.get("message"));
-                    return true;
-                }
-            }
-        } else if ( ! duelNewGame1.ai) System.out.println("invalid command");
-
-        else {
-            Integer round = duelNewGame1.round;
-            JSONObject response = js_Pass("command", "duel_new_game", "Opponent",  Boolean.toString(duelNewGame1.ai),
-                    "round", Integer.toString(duelNewGame1.round), "opponent_type", "ai");
-
-            if (response.get("type").equals("error")) System.out.println(response.get("message"));
-
-            else {
-                System.out.println(response.get("message"));
-                duelBoardMenu();
-            }
-        }
-
-
-        return false;
-    }
-
-     */
 }
 

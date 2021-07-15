@@ -1,5 +1,6 @@
 package sample.Model.JsonObject;
 
+import sample.Model.Game.Card.Card;
 import sample.Model.Game.Card.MonsterCard.MonsterCard;
 import sample.Model.Game.Card.SpellCard.SpellCard;
 import sample.Model.Game.Player;
@@ -23,25 +24,30 @@ public class FieldJson {
         this.handSize = player.getHand().size();
         this.nickName = player.getNickname();
         this.life = player.getLp();
+        this.hand = new ArrayList<>();
 
         for(int i = 0 ; i < 5 ; i++){
             MonsterCard monsterCard = player.getField().getMonsterZone()[i];
             if(monsterCard == null)
                 continue;
-            this.monsterZone[i] = new CardBoardInfo(monsterCard.getMode(),monsterCard.getStatus());
+            this.monsterZone[i] = new CardBoardInfo(monsterCard.getMode(),monsterCard.getStatus(),monsterCard.getName());
         }
 
         for(int i = 0 ; i < 5 ; i++){
             SpellCard spellCard = player.getField().getSpellZone()[i];
             if(spellCard == null)
                 continue;
-            this.spellZone[i] = new CardBoardInfo(null,spellCard.getStatus());
+            this.spellZone[i] = new CardBoardInfo(null,spellCard.getStatus(),spellCard.getName());
+        }
+
+        for (Card card : player.getHand()) {
+            this.hand.add(new CardBoardInfo(null,card.getStatus(),card.getName()));
         }
 
         this.graveyardSize = player.getField().getGraveyard().size();
 
         if(player.getField().getFieldZone() != null)
-            this.fieldZone = new CardBoardInfo(null,player.getField().getFieldZone().getStatus());
+            this.fieldZone = new CardBoardInfo(null,player.getField().getFieldZone().getStatus(),player.getField().getFieldZone().getName());
     }
 
     public String getNickName() {

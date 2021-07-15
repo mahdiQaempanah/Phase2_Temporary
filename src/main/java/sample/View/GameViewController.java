@@ -1,12 +1,9 @@
 package sample.View;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -23,6 +20,7 @@ import sample.Model.ApiMessage;
 import sample.Model.Game.Phase;
 import sample.Model.JsonObject.BoardJson;
 import sample.View.Components.*;
+import sample.View.Graphic.MainMenu;
 
 
 import java.util.ArrayList;
@@ -31,14 +29,18 @@ import java.util.Locale;
 
 public class GameViewController {
     public static final Point2D cardSize = new Point2D(104,120);
+    private Stage primaryStage;
+    public MainMenu myMainMenu;
     public API api;
     public AnchorPane mainPane;
     public BoardComponent board;
     public GameStatus gameStatus;
     public Button pauseButton;
+
     public Label gameLogLabel;
     public GameLog gameLog;
     public Label phaseLabel;
+
     public Button deselectButton;
     public Button nextPhaseButton;
     public Button summonButton;
@@ -46,22 +48,25 @@ public class GameViewController {
     public Button attackButton;
     public Rectangle cardInfo;
 
-    private void startGame(Stage stage, ApiMessage response, API api){
+    public void startGame(Stage stage, ApiMessage response, API api, MainMenu mainMenu, Stage primaryStage){
+        this.myMainMenu = mainMenu;
+        this.primaryStage = primaryStage;
         this.api = api;
         board = new BoardComponent(this,mainPane);
         gameLog = new GameLog(gameLogLabel);
+        gameStatus = new GameStatus(mainPane,this);
         throwingCoin(stage,response);
     }
 
     private void throwingCoin(Stage stage, ApiMessage response){
-        String poshtAddress = getClass().getResource("../Image/coinPosht.png").toExternalForm();
-        String rooAddress = getClass().getResource("../Image/coinRoo.png").toExternalForm();
+        String poshtAddress = getClass().getResource("../../Image/coinPosht.png").toExternalForm();
+        String rooAddress = getClass().getResource("../../Image/coinRoo.png").toExternalForm();
         JSONObject messageOfResponse = new JSONObject(response.getMessage());
         boolean isPlayer2Turn = messageOfResponse.getBoolean("firstTurn");
 
         Rectangle coin = new Rectangle();
         coin.setWidth(120);coin.setHeight(120);
-        coin.setLayoutX(150);coin.setLayoutY(600);
+        coin.setLayoutX(150);coin.setLayoutY(400);
         coin.setFill(new ImagePattern(new Image(poshtAddress)));
 
         int numberOfCoinRotation = 16;
@@ -75,7 +80,7 @@ public class GameViewController {
     private void spinningCoin(Rectangle coin, int numberOfCoinRotation, boolean posthInGround, String poshtAddress, String rooAddress) {
         if(numberOfCoinRotation == 0){
             Label result = new Label();
-            result.setLayoutX(93);result.setLayoutY(734);
+            result.setLayoutX(110);result.setLayoutY(534);
 
             String labelText = "Player1 start the game.";
             if(!posthInGround)
@@ -110,24 +115,19 @@ public class GameViewController {
     }
 
     private void handleFirstPhase() throws Exception {
+        checkGameOver();
         ArrayList<String> keyWords = new ArrayList<>();
         keyWords.add("command");keyWords.add("add_card_to_hand");
         ApiMessage response = responseFromApi(keyWords);
         JSONObject messageOfResponse = new JSONObject(response.getMessage());
-        showNewGameLog(Color.WHITE,messageOfResponse.get("newCard")+" added to activePlayer hand.",2000);
+        showNewGameLog(Color.GREEN,messageOfResponse.get("newCard")+" added to activePlayer hand.",3000);
 
         keyWords.clear();
         keyWords.add("command");keyWords.add("get_board");
         response = responseFromApi(keyWords);
         BoardJson newBoard = new Gson().fromJson(response.getMessage(), BoardJson.class);
         board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
-
-        keyWords.clear();
-        keyWords.add("command");keyWords.add("nextPhase");
-        response = responseFromApi(keyWords);
-        Phase nowPhase = new Gson().fromJson(response.getMessage(), Phase.class);
-        gameStatus.setPhase(nowPhase);
-        phaseLabel.setText("Phase: " + nowPhase);
+        handleNextPhase();
     }
 
     public void showNewGameLog(Color color,String message, int showTime) {
@@ -138,7 +138,7 @@ public class GameViewController {
         board.reset(getBoard());
     }
 
-    private BoardJson getBoard() throws Exception {
+    public BoardJson getBoard() throws Exception {
         ArrayList<String> keyWords = new ArrayList<>();
         keyWords.add("command");keyWords.add("get_board");
         ApiMessage newBoard = responseFromApi(keyWords);
@@ -154,6 +154,7 @@ public class GameViewController {
         return new Gson().fromJson(String.valueOf(jsonAns),ApiMessage.class);
     }
 
+
     public void handleDeselect(ActionEvent actionEvent) {
         if(gameStatus.getGameMode() == GameMode.SELECTED_CARD){
             gameStatus.reset(actionEvent);
@@ -161,8 +162,12 @@ public class GameViewController {
         }
     }
 
-    public void handleNextPhase(ActionEvent actionEvent) throws Exception {
-        gameStatus.reset(actionEvent);
+    public void handleNextPhaseButton(ActionEvent actionEvent) throws Exception {
+        handleNextPhase();
+    }
+
+    private void handleNextPhase() throws Exception {
+        gameStatus.reset(null);
         ArrayList<String> keyWords = new ArrayList<>();
         keyWords.add("command");keyWords.add("nextPhase");
         ApiMessage response = responseFromApi(keyWords);
@@ -191,15 +196,46 @@ public class GameViewController {
                 gameStatus.getTributes().add(null);
 
             if(tributeCount == 0)
-                summonSelectedCard();
+                summonSelectedCard(true);
         }
     }
 
-    private void summonSelectedCard() throws Exception {
-        gameStatus.reset(null);
-        BoardJson newBoard = getBoard();
-        board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
-        board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
+    public void summonSelectedCard(boolean withoutTributes) throws Exception {
+        if(withoutTributes){
+            showNewGameLog(Color.GREEN,"monster was summoned.",3000);
+            gameStatus.reset(null);
+            BoardJson newBoard = getBoard();
+            board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+            board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
+            return;
+        }
+
+        Integer address1 = null;Integer address2 = null;
+        if(gameStatus.getTributes().size() >= 1)
+            address1 = board.getActivePlayer().getId(Arrays.asList(board.getActivePlayer().getMonsterZone()),gameStatus.getTributes().get(0));
+        if(gameStatus.getTributes().size() >= 2)
+            address2 = board.getActivePlayer().getId(Arrays.asList(board.getActivePlayer().getMonsterZone()),gameStatus.getTributes().get(1));
+
+        ArrayList<String> keyWords = new ArrayList<>();
+        keyWords.add("command");keyWords.add("tribute");
+        keyWords.add("numberOfTributes");keyWords.add(String.valueOf(gameStatus.getTributes().size()));
+        if(address1 != null)
+            keyWords.add("address1");keyWords.add(String.valueOf(address1));
+        if(address2 != null)
+            keyWords.add("address2");keyWords.add(String.valueOf(address2));
+
+        ApiMessage response = responseFromApi(keyWords);
+        if(response.getType().equals(ApiMessage.error)){
+            showNewGameLog(Color.RED,response.getMessage(),3000);
+            gameStatus.reset(null);
+            return;
+        }else{
+            showNewGameLog(Color.GREEN,"monster was summoned.",3000);
+            gameStatus.reset(null);
+            BoardJson newBoard = getBoard();
+            board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+            board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
+        }
     }
 
     public void handleSetMonster(ActionEvent actionEvent) throws Exception {
@@ -221,7 +257,8 @@ public class GameViewController {
         }
     }
 
-    private void setMonsterSelectedCard() throws Exception {
+    public void setMonsterSelectedCard() throws Exception {
+        showNewGameLog(Color.GREEN,"monster was set.",3000);
         gameStatus.reset(null);
         BoardJson newBoard = getBoard();
         board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
@@ -259,17 +296,78 @@ public class GameViewController {
             showNewGameLog(Color.DARKRED,response.getMessage(),2000);
             return;
         }
+        showNewGameLog(Color.GREEN,"monster mode changed.",3000);
         gameStatus.reset(null);
         BoardJson newBoard = getBoard();
         board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
     }
 
-    public void handleSetSpell(ActionEvent actionEvent) {
+    public void handleSetSpell(ActionEvent actionEvent) throws Exception {
+        if(gameStatus.getGameMode() != GameMode.SELECTED_CARD)
+            return;
+
+        ArrayList<String> keyWords = new ArrayList<>();
+        keyWords.add("command");keyWords.add("setSpell");
+        ApiMessage response = responseFromApi(keyWords);
+        if(response.getType().equals(ApiMessage.error)){
+            showNewGameLog(Color.RED,response.getMessage(),3000);
+            return;
+        }
+        showNewGameLog(Color.GREEN,"spell was set.",3000);
+        BoardJson newBoard = getBoard();
+        board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+        board.getActivePlayer().buildSpellZone(newBoard.getActivePlayer().getSpellZone(),ActivePlayerCardsCoordinates.spellZone);
     }
 
-    public void handleActiveSpell(ActionEvent actionEvent) {
+    public void handleActiveSpell(ActionEvent actionEvent) throws Exception {
+        if(gameStatus.getGameMode() != GameMode.SELECTED_CARD)
+            return;
+
+        ArrayList<String> keyWords = new ArrayList<>();
+        keyWords.add("command");keyWords.add("activeEffect");
+        ApiMessage response = responseFromApi(keyWords);
+        if(response.getType().equals(ApiMessage.error)){
+            showNewGameLog(Color.RED,response.getMessage(),3000);
+            return;
+        }
+        showNewGameLog(Color.GREEN,"spell was activated.",3000);
+        BoardJson newBoard = getBoard();
+        board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+        board.getActivePlayer().buildSpellZone(newBoard.getActivePlayer().getSpellZone(),ActivePlayerCardsCoordinates.spellZone);
     }
 
     public void handleEnd(ActionEvent actionEvent) {
     }
+
+    public void checkGameOver() throws Exception {
+        ArrayList<String> keyWords = new ArrayList<>();
+        keyWords.add("command");keyWords.add("isGameOver");
+        ApiMessage response = responseFromApi(keyWords);
+        JSONObject message = new JSONObject(response.getMessage());
+        if(message.getBoolean("isOver")){
+            showNewGameLog(Color.GOLD,message.getString("winner")+" win the match. (•ᴗ•)",6000);
+            myMainMenu.start(primaryStage);
+        }
+    }
+
+    public String getCardPictureAddress(String cardName) {
+        cardName = cardName.trim().toLowerCase();
+        char[] card = new char[cardName.length()];
+        for(int i = 0 ; i < card.length ; i++) {
+            if((i == 0 || cardName.charAt(i-1) == ' ') && cardName.charAt(i) != ' ')
+                card[i] = (char) ('A' + cardName.charAt(i) - 'a');
+            else
+                card[i] = cardName.charAt(i);
+        }
+
+        String[] cardWords = new String(card).split(" ");
+        String cardAddress = new String();
+        for (String cardWord : cardWords) {
+            cardAddress = cardAddress.concat(cardWord);
+        }
+
+        cardAddress = "../../Image/Cards/" + cardAddress + ".jpg";
+        return  getClass().getResource(cardAddress).toExternalForm();
+    }
 }
+

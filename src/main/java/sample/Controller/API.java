@@ -21,6 +21,14 @@ public class API {
     public JSONObject run(JSONObject request) throws Exception {
         String commandType = request.getString("command");
         //import cards
+        if(commandType.equals("duelNewGame")){
+            String opponent = (String) request.get("opponent");
+            //int rounds = Integer.parseInt(request.get("round").toString());
+            int rounds = 1;
+            return new JSONObject(programController.createDuel(opponent,rounds,gameController));
+            //ai
+        }
+
         if(commandType.equals("add_card_to_hand")){
             return new JSONObject(gameController.addCardFromDeckToHand());
         }
@@ -38,7 +46,10 @@ public class API {
             CardAddress selectedCardAddress = null;
             switch (zone){
                 case "monster_zone":
-                    selectedCardAddress = CardAddress.MONSTER_ZONE;
+                    if(!(Boolean.parseBoolean( request.get("isActivePlayer").toString())))
+                       selectedCardAddress = CardAddress.MONSTER_ZONE;
+                    else
+                        selectedCardAddress = CardAddress.MONSTER_ZONE;
                     break;
                 case "spell_zone":
                     if(!(Boolean.parseBoolean( request.get("isActivePlayer").toString())))
@@ -63,6 +74,19 @@ public class API {
             return new JSONObject(gameController.summonMonster());
         }
 
+        if(commandType.equals("tribute")){
+            int numberOfTribute =  Integer.parseInt((String) request.get("numberOfTributes"));
+            if(numberOfTribute == 1){
+                int address1 = Integer.parseInt((String) request.get("address1"));
+                return new JSONObject(gameController.getTributeForSummonMonster(address1));
+            }
+            else{
+                int address1 = Integer.parseInt((String) request.get("address1"));
+                int address2 = Integer.parseInt((String) request.get("address2"));
+                return new JSONObject(gameController.getTributesForSummonMonster(address1,address2));
+            }
+        }
+
         if(commandType.equals("setMonster")){
             return new JSONObject(gameController.setMonster());
         }
@@ -71,14 +95,31 @@ public class API {
             return new JSONObject(gameController.changeMonsterMode());
         }
 
+        if(commandType.equals("setSpell")){
+            gameController.setSpellAndTrap();
+        }
+
+        if(commandType.equals("activeEffect")){
+            return new JSONObject(gameController.activateEffect());
+            //check
+        }
+
+        if(commandType.equals("isGameOver")){
+            return new JSONObject(gameController.isRoundOver());
+        }
+
         if(commandType.equals("attack")){
-            return new JSONObject(gameController.attack((Integer) request.get("id")));
+            return new JSONObject(gameController.attack(Integer.parseInt(String.valueOf(request.get("id")))));
         }
 
         if(commandType.equals("directAttack")){
             return new JSONObject(gameController.directAttack());
         }
 
+
+        if(commandType.equals("get_board")){
+            return new JSONObject(gameController.getBoard());
+        }
 
         if(commandType.equals("show_scorboard")){
             return new JSONObject(programController.showScoreboard());
@@ -109,10 +150,6 @@ public class API {
         }
 
 
-        if(commandType.equals("active_effect")){
-            return new JSONObject(gameController.activateEffect());
-            //check
-        }
         if(commandType.equals("show_graveyard")){
             return new JSONObject(gameController.getGraveyard());
         }
@@ -122,9 +159,7 @@ public class API {
         if(commandType.equals("set_winner")){
             //what to do
         }
-        if(commandType.equals("get_board")){
-            return new JSONObject(gameController.getBoard());
-        }
+
         if(commandType.equals("crate_new_user")){
             String username = (String) request.get("username");
             String password = (String) request.get("password");
@@ -162,38 +197,10 @@ public class API {
         if(commandType.equals("show_deck_all")){
             return new JSONObject(programController.showAllDeck());
         }
-        if(commandType.equals("duel_new_game")){
-            String opponent = (String) request.get("Opponent");
-            int rounds = Integer.parseInt(request.get("round").toString());
-            return new JSONObject(programController.createDuel(opponent,rounds,gameController));
-            //ai
-        }
+
         if(commandType.equals("set_winner")){
             String nickname = (String) request.get("who?");
             gameController.isRoundOver();
-        }
-        if(commandType.equals("set_card")){
-            return new JSONObject(gameController.summonMonster());
-        }
-        if(commandType.equals("set_position")){
-            Mode monsterMode = null;
-            if(((String) request.get("position")).equals("attack"))
-                monsterMode = Mode.ATTACK;
-            else
-                monsterMode = Mode.DEFENSE;
-            return new JSONObject(gameController.changeMonsterMode());
-        }
-        if(commandType.equals("tribute")){
-            int numberOfTribute = (int) request.get("number");
-            if(numberOfTribute == 1){
-                int address1 = (int) request.get("address1");
-                return new JSONObject(gameController.getTributeForSummonMonster(address1));
-            }
-            else{
-                int address1 = (int) request.get("address1");
-                int address2 = (int) request.get("address2");
-                return new JSONObject(gameController.getTributesForSummonMonster(address1,address2));
-            }
         }
 
         return null;

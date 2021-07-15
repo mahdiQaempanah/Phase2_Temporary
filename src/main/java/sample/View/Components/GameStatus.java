@@ -2,6 +2,7 @@ package sample.View.Components;
 
 import javafx.event.ActionEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import sample.Model.Game.Phase;
 import sample.View.GameViewController;
@@ -20,6 +21,7 @@ public class GameStatus {
     public GameStatus(AnchorPane mainPane,GameViewController controller){
         myController = controller;
         myPane = mainPane;
+        gameMode = GameMode.NONE;
     }
 
     public void setPhase(Phase phase) {
@@ -55,5 +57,18 @@ public class GameStatus {
     }
 
     public void reset(ActionEvent actionEvent) {
+        gameMode = GameMode.NONE;
+        if(selectedCard != null){
+            myController.cardInfo.setFill(Color.BLACK);
+            myController.board.getActivePlayer().activateCard(selectedCard);
+            selectedCard = null;
+        }
+
+        if(tributes == null)
+            return;
+        for (Rectangle tribute : tributes) {
+            if(tribute != null)
+                myController.board.getActivePlayer().activateCard(tribute);
+        }
     }
 }

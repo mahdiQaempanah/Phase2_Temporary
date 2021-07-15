@@ -25,7 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ScoreBoardMenu extends Application {
-    private API request=new API();
+    private API request = new API();
 
     private String username;
     public BorderPane root = new BorderPane();
@@ -37,10 +37,6 @@ public class ScoreBoardMenu extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-
-
-
         // StackPane root = FXMLLoader.load(getClass().getResource("resources/sample.fxml"));
         Scene scene = new Scene(root, 900, 550);
         //scene.getStylesheet().add("path/Stylesheet.css");
@@ -82,10 +78,10 @@ public class ScoreBoardMenu extends Application {
             if (j == 20) break;
 
             if (i == 1) {
-               userLable.setText(i + "- " + user.nickname + ": " + user.score);
+                userLable.setText(i + "- " + user.nickname + ": " + user.score);
                 j++;
             } else if (user.score == priorScore) {
-               userLable.setText(i + "-  " + user.nickname + ": " + user.score);
+                userLable.setText(i + "-  " + user.nickname + ": " + user.score);
                 j++;
             } else {
                 userLable.setText(j + "- " + user.nickname + ":  " + user.score);
@@ -102,13 +98,11 @@ public class ScoreBoardMenu extends Application {
         }
 
 
-
-
         //////////////////////////////////////////////////////////////
 
 
         //set back button
-        Button backbutton=new Button("back");
+        Button backbutton = new Button("back");
 
 
         backbutton.setOnAction(new EventHandler<ActionEvent>() {
@@ -129,9 +123,7 @@ public class ScoreBoardMenu extends Application {
         backbutton.setAlignment(Pos.CENTER);
 
         root.setBottom(backbutton);
-        BorderPane.setAlignment(backbutton,Pos.CENTER);
-
-
+        BorderPane.setAlignment(backbutton, Pos.CENTER);
 
 
     }
@@ -145,15 +137,17 @@ public class ScoreBoardMenu extends Application {
 
         JSONObject response = js_Pass("command", "show_scorboard");
         Gson gson = new Gson();
-        Type userListType = new TypeToken<ArrayList<ScoreboardInfo>>() {}.getType();
+        Type userListType = new TypeToken<ArrayList<ScoreboardInfo>>() {
+        }.getType();
         ArrayList<ScoreboardInfo> scoreboardInfos = gson.fromJson((String) response.get("message"), userListType);
 
         LinkedList<ScoreboardInfo> scoreList = new LinkedList<>(scoreboardInfos);
         List<ScoreboardInfo> interChange = new ArrayList<>();
         int quantity = scoreboardInfos.size();
 
-        if (quantity==0){
-            System.out.println("none");return null;
+        if (quantity == 0) {
+            System.out.println("none");
+            return null;
         }
         for (int i = 0; i <= quantity - 2; i++) {
             for (int j = i + 1; i <= quantity - 1; i++) {
@@ -182,6 +176,7 @@ public class ScoreBoardMenu extends Application {
         }
         return scoreList;
     }
+
     public JSONObject js_Pass(String... args) throws Exception {
         for (int i = 0; i <= args.length - 2; i += 2) {
             request_JSON.put(args[i], args[i + 1]);
@@ -193,7 +188,7 @@ public class ScoreBoardMenu extends Application {
     }
 
     public void setPriorMenu(MainMenu mainMenu) {
-        this.mainMenu=mainMenu;
+        this.mainMenu = mainMenu;
     }
     /*
     public void setPrior(MainMenu mainMenu){this.mainMenu=mainMenu;}

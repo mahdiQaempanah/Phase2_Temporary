@@ -78,10 +78,12 @@ public class Game {
                 break;
             case END_PHASE:
                 setPhase(Phase.DRAW_PHASE);
+                activePlayer.resetRound();
+                inactivePlayer.resetRound();
                 nextTurn();
                 break;
             default:
-                setPhase(Phase.DRAW_PHASE);
+                System.out.println("invalid phase");
                 break;
         }
     }

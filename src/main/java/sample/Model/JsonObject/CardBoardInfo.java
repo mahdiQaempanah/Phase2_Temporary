@@ -8,9 +8,10 @@ public class CardBoardInfo {
     private Status status;
     private String name;
 
-    public CardBoardInfo(Mode mode, Status status) {
+    public CardBoardInfo(Mode mode, Status status, String name) {
         this.mode = mode;
         this.status = status;
+        this.name = name;
     }
 
     public Mode getMode() {

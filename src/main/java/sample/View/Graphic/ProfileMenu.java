@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 public class ProfileMenu extends Application {
 
     private String username;
-    LoginMenu loginMenu= new LoginMenu();
+    LoginMenu loginMenu = new LoginMenu();
     MainMenu mainMenu;
     public JSONObject request_JSON = new JSONObject();
     public JSONObject response;

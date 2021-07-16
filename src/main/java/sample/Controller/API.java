@@ -20,7 +20,7 @@ public class API {
 
     public JSONObject run(JSONObject request) throws Exception {
         String commandType = request.getString("command");
-        //import cards
+
         if(commandType.equals("duelNewGame")){
             String opponent = (String) request.get("opponent");
             //int rounds = Integer.parseInt(request.get("round").toString());
@@ -28,19 +28,15 @@ public class API {
             return new JSONObject(programController.createDuel(opponent,rounds,gameController));
             //ai
         }
-
         if(commandType.equals("add_card_to_hand")){
             return new JSONObject(gameController.addCardFromDeckToHand());
         }
-
         if(commandType.equals("nextPhase")) {
             return new JSONObject(gameController.nextPhase());
         }
-
         if(commandType.equals("get_phase")){
             return new JSONObject(gameController.getPhase());
         }
-
         if(commandType.equals("selectCard")){
             String zone = (String) request.get("zone");
             CardAddress selectedCardAddress = null;
@@ -69,11 +65,9 @@ public class API {
             }
             return new JSONObject(gameController.selectCard(selectedCardAddress, Integer.parseInt(request.get("id").toString())));
         }
-
         if(commandType.equals("summon")){
             return new JSONObject(gameController.summonMonster());
         }
-
         if(commandType.equals("tribute")){
             int numberOfTribute =  Integer.parseInt((String) request.get("numberOfTributes"));
             if(numberOfTribute == 1){
@@ -86,39 +80,30 @@ public class API {
                 return new JSONObject(gameController.getTributesForSummonMonster(address1,address2));
             }
         }
-
         if(commandType.equals("setMonster")){
             return new JSONObject(gameController.setMonster());
         }
-
         if(commandType.equals("changeMonsterMode")){
             return new JSONObject(gameController.changeMonsterMode());
         }
-
         if(commandType.equals("setSpell")){
             gameController.setSpellAndTrap();
         }
-
         if(commandType.equals("activeEffect")){
             return new JSONObject(gameController.activateEffect());
         }
-
         if(commandType.equals("isGameOver")){
             return new JSONObject(gameController.isRoundOver());
         }
-
         if(commandType.equals("attack")){
             return new JSONObject(gameController.attack(Integer.parseInt(String.valueOf(request.get("id")))));
         }
-
         if(commandType.equals("directAttack")){
             return new JSONObject(gameController.directAttack());
         }
-
         if(commandType.equals("showGraveyard")){
             return new JSONObject(gameController.getGraveyard(Boolean.parseBoolean((String) request.get("isActivePlayer"))));
         }
-
         if(commandType.equals("get_board")){
             return new JSONObject(gameController.getBoard());
         }
@@ -129,12 +114,13 @@ public class API {
         if(commandType.equals("buyCard")){
             return new JSONObject(programController.buyCard((String) request.get("cardName")));
         }
-        if(commandType.equals("shopShowAll")) {
-            return new JSONObject(programController.showShopCards());
-        }
         if(commandType.equals("getMoney")){
             return new JSONObject(programController.getMoney());
         }
+        if(commandType.equals("shopShowAll")) {
+            return new JSONObject(programController.showShopCards());
+        }
+
         if(commandType.equals("crate_deck")){
             return new JSONObject(programController.createDeck((String) request.get("deckName")));
         }
@@ -144,7 +130,7 @@ public class API {
         if(commandType.equals("set_deck_activate")){
             return new JSONObject(programController.selectActiveDeck((String) request.get("deckName")));
         }
-        if(commandType.equals("show_deck_all")){
+        if(commandType.equals("showAllDecks")){
             return new JSONObject(programController.showAllDeck());
         }
         if(commandType.equals("back_select")){
@@ -153,6 +139,7 @@ public class API {
         if(commandType.equals("show_selected_card")){
             return new JSONObject(gameController.getSelectedCard());
         }
+
 
 
         if(commandType.equals("increase_money")){

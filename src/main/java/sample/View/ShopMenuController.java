@@ -35,6 +35,7 @@ public class ShopMenuController {
     public MainMenu myMainMenu;
     public API api;
     public AnchorPane mainPane;
+
     private ArrayList<CardGeneralInfo> cardsInf0;
     private ArrayList<Rectangle> cards;
     

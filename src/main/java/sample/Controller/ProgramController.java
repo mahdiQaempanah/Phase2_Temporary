@@ -16,16 +16,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProgramController {
-    private static boolean justOneObject = false;
     private final static String usersInfoPath = "target\\classes\\Database\\UsersInfo.txt";
     private final static String monstersInfoPath = "target\\classes\\Database\\MonstersInfo.txt";
     private final static String spellAndTrapsINfoPath = "target\\classes\\Database\\Spell&TrapsInfo.txt";
     private AccountJson loggedInUser ;
 
     public ProgramController(){
-        assert !ProgramController.justOneObject;
-        justOneObject = true;
-        loggedInUser = null;
     }
 
     public ApiMessage register(String username, String password, String nickname) throws Exception {
@@ -249,7 +245,7 @@ public class ProgramController {
     public ApiMessage buyCard(String cardName) throws Exception {
 
         if(!doesMonsterExistWithThisName(cardName)&&!doesSpellOrTrapExistsWithThisName(cardName)){
-            return new ApiMessage(ApiMessage.error,"there is no card with this name");
+            return new ApiMessage(ApiMessage.error,"there is no card with this name.");
         }
 
         CardGeneralInfo card;
@@ -265,13 +261,13 @@ public class ProgramController {
         }
 
         if(loggedInUser.getMoney() < card.getPrice()){
-            return new ApiMessage(ApiMessage.error,"not enough money");
+            return new ApiMessage(ApiMessage.error,"not enough money.");
         }
 
         loggedInUser.addToPurchasedCards(cardName);
         loggedInUser.decreaseMoney(card.getPrice());
         changeUserInfoInDataBase(loggedInUser);
-        return new ApiMessage(ApiMessage.successful,"card successfully purchased");
+        return new ApiMessage(ApiMessage.successful,"card successfully purchased.");
     }
 
     public ApiMessage increaseMoney(int amount) throws Exception {
@@ -462,5 +458,9 @@ public class ProgramController {
 
     private void setLoggedInUser(AccountJson loggedInUser){
         this.loggedInUser = loggedInUser;
+    }
+
+    public ApiMessage getMoney() throws Exception {
+        return new ApiMessage(ApiMessage.successful,"{\"money\":" + loggedInUser.getMoney() + "}");
     }
 }

@@ -71,8 +71,7 @@ public class ScoreBoardMenu extends Application {
 
         int priorScore = 0;
         int i = 1, j = 1;
-        for (ScoreboardInfo user :
-                loadScores()) {
+        for (ScoreboardInfo user : loadScores()) {
             String scoreLine;
             Label userLable = new Label();
             if (j == 20) break;
@@ -97,7 +96,7 @@ public class ScoreBoardMenu extends Application {
 
         }
 
-
+        root.getChildren().add(scoreBar);
         //////////////////////////////////////////////////////////////
 
 

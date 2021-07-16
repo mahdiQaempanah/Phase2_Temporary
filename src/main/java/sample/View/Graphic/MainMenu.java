@@ -4,6 +4,7 @@ package sample.View.Graphic;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -21,6 +22,8 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import sample.Controller.API;
+import sample.View.GameViewController;
+import sample.View.ShopMenuController;
 
 
 import java.io.FileInputStream;
@@ -224,6 +227,7 @@ public class MainMenu extends Application {
     }
 
     private void buildShopButton(BorderPane root) {
+        MainMenu me = this;
         Rectangle shopButton = new Rectangle();
         shopButton.setWidth(100);shopButton.setHeight(100);
 
@@ -237,8 +241,12 @@ public class MainMenu extends Application {
             @Override
             public void handle(MouseEvent event) {
                 try {
-                    ShopMenu shopMenu = new ShopMenu();
-                    shopMenu.start(primaryStage);
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("../../../Fxml/ShopMenu.fxml"));
+                    Parent root = loader.load();
+                    ShopMenuController controller = (ShopMenuController) loader.getController();
+                    primaryStage.setScene(new Scene(root));
+                    primaryStage.show();
+                    controller.start(primaryStage,me,api);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

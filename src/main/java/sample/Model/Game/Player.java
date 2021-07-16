@@ -42,6 +42,12 @@ public class Player {
     public void resetRound(){
         isMonsterSummon = false;
         isMonsterSet = false;
+        for (MonsterCard monsterCard : field.getMonsterZone()) {
+            if(monsterCard != null){
+                monsterCard.setMonsterAttackInTurn(false);
+                monsterCard.setChangeModeInTurn(false);
+            }
+        }
     }
 
     public void setCanRitualSummon(boolean canRitualSummon) {

@@ -301,6 +301,7 @@ public class FieldComponent {
         myController.showNewGameLog(Color.RED,"inactive player damaged " + damage,3000);
         BoardJson newBoard = myController.getBoard();
         buildUserInfo(newBoard.getInActivePlayer().getNickName(),newBoard.getInActivePlayer().getLife(),InactivePlayerCardsCoordinates.userInfo);
+        myController.gameStatus.reset(null);
         myController.checkGameOver();
     }
 

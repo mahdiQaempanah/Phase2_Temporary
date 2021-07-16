@@ -36,6 +36,7 @@ public class GameViewController {
     public MainMenu myMainMenu;
     public API api;
     public AnchorPane mainPane;
+
     public BoardComponent board;
     public GameStatus gameStatus;
     public Button pauseButton;
@@ -317,7 +318,14 @@ public class GameViewController {
         JSONObject message = new JSONObject(response.getMessage());
         if(message.getBoolean("isOver")){
             showNewGameLog(Color.GOLD,message.getString("winner")+" win the match. (•ᴗ•)",6000);
-            myMainMenu.start(primaryStage);
+            Timeline timeline = new Timeline(new KeyFrame(Duration.millis(6000), (ActionEvent event) -> {
+                try {
+                    myMainMenu.start(primaryStage);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+            }));
+            timeline.play();
         }
     }
 

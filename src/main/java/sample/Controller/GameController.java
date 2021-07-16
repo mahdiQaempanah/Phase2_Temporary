@@ -21,14 +21,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class GameController{
-    private static boolean justOneObject = false;
     private Game game ;
     private ProgramController programController;
 
     public GameController(ProgramController programController){
-        assert !justOneObject;
-        justOneObject = true;
-        game = null;
+        this.programController = programController;
     }
 
     public ApiMessage createGame(AccountJson player1, AccountJson player2, int rounds) throws Exception {
@@ -325,6 +322,8 @@ public class GameController{
     private ApiMessage endRound(Player looser, Player winner) throws Exception {
         JSONObject ans = new JSONObject();
         ans.put("isOver",true);
+        System.out.println(looser.getNickname());
+        System.out.println(winner.getNickname());
         AccountJson looserAccount = programController.getUserInfoByNickname(looser.getNickname());
         AccountJson winnerAccount = programController.getUserInfoByNickname(winner.getNickname());
         ans.put("winner",winnerAccount.getUsername());
@@ -404,4 +403,6 @@ public class GameController{
         }
         return arrayList;
     }
+
+
 }

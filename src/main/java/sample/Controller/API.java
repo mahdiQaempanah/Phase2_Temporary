@@ -129,8 +129,11 @@ public class API {
         if(commandType.equals("buyCard")){
             return new JSONObject(programController.buyCard((String) request.get("cardName")));
         }
-        if(commandType.equals("shop_show_all")) {
+        if(commandType.equals("shopShowAll")) {
             return new JSONObject(programController.showShopCards());
+        }
+        if(commandType.equals("getMoney")){
+            return new JSONObject(programController.getMoney());
         }
         if(commandType.equals("crate_deck")){
             return new JSONObject(programController.createDeck((String) request.get("deckName")));

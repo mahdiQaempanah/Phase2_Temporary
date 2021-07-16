@@ -47,9 +47,9 @@ public class API {
             switch (zone){
                 case "monster_zone":
                     if(!(Boolean.parseBoolean( request.get("isActivePlayer").toString())))
-                       selectedCardAddress = CardAddress.MONSTER_ZONE;
+                       selectedCardAddress = CardAddress.OPPONENT_MONSTER_ZONE;
                     else
-                        selectedCardAddress = CardAddress.MONSTER_ZONE;
+                       selectedCardAddress = CardAddress.MONSTER_ZONE;
                     break;
                 case "spell_zone":
                     if(!(Boolean.parseBoolean( request.get("isActivePlayer").toString())))
@@ -91,7 +91,7 @@ public class API {
             return new JSONObject(gameController.setMonster());
         }
 
-        if(commandType.equals("setMonsterMode")){
+        if(commandType.equals("changeMonsterMode")){
             return new JSONObject(gameController.changeMonsterMode());
         }
 
@@ -101,7 +101,6 @@ public class API {
 
         if(commandType.equals("activeEffect")){
             return new JSONObject(gameController.activateEffect());
-            //check
         }
 
         if(commandType.equals("isGameOver")){
@@ -116,6 +115,9 @@ public class API {
             return new JSONObject(gameController.directAttack());
         }
 
+        if(commandType.equals("showGraveyard")){
+            return new JSONObject(gameController.getGraveyard(Boolean.parseBoolean((String) request.get("isActivePlayer"))));
+        }
 
         if(commandType.equals("get_board")){
             return new JSONObject(gameController.getBoard());
@@ -150,9 +152,6 @@ public class API {
         }
 
 
-        if(commandType.equals("show_graveyard")){
-            return new JSONObject(gameController.getGraveyard());
-        }
         if(commandType.equals("increase_money")){
             return new JSONObject(programController.increaseMoney( Integer.parseInt( request.get("amount").toString())));
         }

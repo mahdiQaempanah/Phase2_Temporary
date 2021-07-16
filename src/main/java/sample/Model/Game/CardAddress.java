@@ -7,4 +7,5 @@ public enum CardAddress {
     FIELD_ZONE,
     OPPONENT_FIELD_ZONE,
     HAND,
+    OPPONENT_MONSTER_ZONE;
 }

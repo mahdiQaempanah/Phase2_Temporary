@@ -30,17 +30,24 @@ public class GameLog {
         colorsQueue.add(color);
         messageQueue.add(message);
         showTimeQueue.add(showTime);
-        if(colorsQueue.size() == 1 && show == null && fade == null){
-            showNewGameLog();
-        }
+        showNewGameLog();
     }
 
     private void showNewGameLog() {
-        if(colorsQueue.isEmpty())
-            return;
         Color color = colorsQueue.remove();
         String message = messageQueue.remove();
         int showTime = showTimeQueue.remove();
+
+        if(show != null){
+            show.pause();
+            show = null;
+        }
+
+        if (fade != null) {
+            fade.pause();
+            fade = null;
+        }
+
 
         gameLogLabel.setText(message);
         gameLogLabel.setTextFill(color);
@@ -59,7 +66,6 @@ public class GameLog {
             public void handle(ActionEvent event) {
                 gameLogLabel.setText("");
                 fade = null;
-                showNewGameLog();
             }
         });
         fade.play();

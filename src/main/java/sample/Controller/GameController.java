@@ -56,6 +56,11 @@ public class GameController{
                     return new ApiMessage(ApiMessage.error,"invalid selection");
                 selectedCard = game.getInactivePlayer().getField().getSpellZone()[id];
                 break;
+            case OPPONENT_MONSTER_ZONE:
+                if(game.getInactivePlayer().getField().getMonsterZone().length <= id)
+                    return new ApiMessage(ApiMessage.error,"invalid selection");
+                selectedCard = game.getInactivePlayer().getField().getMonsterZone()[id];
+                break;
             case FIELD_ZONE:
                 assert id==0;
                 selectedCard = game.getActivePlayer().getField().getFieldZone();
@@ -261,12 +266,12 @@ public class GameController{
         if(selectedCard.isMonsterAttackInTurn())
             return new ApiMessage(ApiMessage.error,"this card already attacked");
 
-        if(game.getInactivePlayer().getField().getCntFreeCellsInMonsterZone() != 0 || selectedCard.getMode() != Mode.ATTACK)
+        if(game.getInactivePlayer().getField().getCntFreeCellsInMonsterZone() != 5 || selectedCard.getMode() != Mode.ATTACK)
             return new ApiMessage(ApiMessage.error,"you can’t attack the opponent directly");
 
         game.addToGameLog(GameLogType.DIRECT_ATTACK,selectedCard.hashCode());
         game.getActivePlayer().directAttack(game,selectedCard);
-        return new ApiMessage(ApiMessage.successful,"{\"damage\"=" + selectedCard.getAtk() + "}");
+        return new ApiMessage(ApiMessage.successful,"{\"damage\":" + selectedCard.getAtk() + "}");
     }
 
     public ApiMessage activateEffect() throws Exception {
@@ -356,9 +361,12 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,new Gson().toJson(new BoardJson(new FieldJson(game.getActivePlayer()),new FieldJson(game.getInactivePlayer()))));
     }
 
-    public ApiMessage getGraveyard() throws Exception {
+    public ApiMessage getGraveyard(boolean isActivePlayer) throws Exception {
         ArrayList<CardGeneralInfo> ans = new ArrayList<>();
-        for (Card card : game.getActivePlayer().getField().getGraveyard()) {
+        Player player = game.getInactivePlayer();
+        if(isActivePlayer)
+            player = game.getActivePlayer();
+        for (Card card : player.getField().getGraveyard()) {
             ans.add(getCardGeneralInfoFromCard(card));
         }
         return new ApiMessage(ApiMessage.successful,new Gson().toJson(ans));

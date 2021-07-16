@@ -4,11 +4,14 @@ import com.google.gson.Gson;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
@@ -40,12 +43,6 @@ public class GameViewController {
     public Label gameLogLabel;
     public GameLog gameLog;
     public Label phaseLabel;
-
-    public Button deselectButton;
-    public Button nextPhaseButton;
-    public Button summonButton;
-    public Button setButton;
-    public Button attackButton;
     public Rectangle cardInfo;
 
     public void startGame(Stage stage, ApiMessage response, API api, MainMenu mainMenu, Stage primaryStage){
@@ -130,30 +127,6 @@ public class GameViewController {
         handleNextPhase();
     }
 
-    public void showNewGameLog(Color color,String message, int showTime) {
-        gameLog.add(color,message,showTime);
-    }
-
-    private void resetBoard() throws Exception {
-        board.reset(getBoard());
-    }
-
-    public BoardJson getBoard() throws Exception {
-        ArrayList<String> keyWords = new ArrayList<>();
-        keyWords.add("command");keyWords.add("get_board");
-        ApiMessage newBoard = responseFromApi(keyWords);
-        return new Gson().fromJson(newBoard.getMessage(), BoardJson.class);
-    }
-
-    public ApiMessage responseFromApi(ArrayList<String> keyWords) throws Exception {
-        assert keyWords.size()%2 == 0;
-        JSONObject message = new JSONObject();
-        for(int i = 0 ; i < keyWords.size() ; i+=2)
-            message.put(keyWords.get(i), keyWords.get(i + 1));
-        JSONObject jsonAns = api.run(message);
-        return new Gson().fromJson(String.valueOf(jsonAns),ApiMessage.class);
-    }
-
 
     public void handleDeselect(ActionEvent actionEvent) {
         if(gameStatus.getGameMode() == GameMode.SELECTED_CARD){
@@ -171,7 +144,7 @@ public class GameViewController {
         ArrayList<String> keyWords = new ArrayList<>();
         keyWords.add("command");keyWords.add("nextPhase");
         ApiMessage response = responseFromApi(keyWords);
-        phaseLabel.setText("Phase: " + response.getMessage().replace("_"," ").toLowerCase().toUpperCase(Locale.ROOT));
+        phaseLabel.setText("Phase: " + response.getMessage().substring(1,response.getMessage().length()-1).replace("_"," ").toLowerCase().toLowerCase());
         Phase phase = new Gson().fromJson(response.getMessage(),Phase.class);
         if(phase == Phase.DRAW_PHASE){
             resetBoard();
@@ -185,7 +158,7 @@ public class GameViewController {
             keyWords.add("command");keyWords.add("summon");
             ApiMessage response = responseFromApi(keyWords);
             if(response.getType().equals(ApiMessage.error)){
-                showNewGameLog(Color.DARKRED,response.getMessage(),2000);
+                showNewGameLog(Color.RED,response.getMessage(),2000);
                 return;
             }
 
@@ -200,51 +173,13 @@ public class GameViewController {
         }
     }
 
-    public void summonSelectedCard(boolean withoutTributes) throws Exception {
-        if(withoutTributes){
-            showNewGameLog(Color.GREEN,"monster was summoned.",3000);
-            gameStatus.reset(null);
-            BoardJson newBoard = getBoard();
-            board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
-            board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
-            return;
-        }
-
-        Integer address1 = null;Integer address2 = null;
-        if(gameStatus.getTributes().size() >= 1)
-            address1 = board.getActivePlayer().getId(Arrays.asList(board.getActivePlayer().getMonsterZone()),gameStatus.getTributes().get(0));
-        if(gameStatus.getTributes().size() >= 2)
-            address2 = board.getActivePlayer().getId(Arrays.asList(board.getActivePlayer().getMonsterZone()),gameStatus.getTributes().get(1));
-
-        ArrayList<String> keyWords = new ArrayList<>();
-        keyWords.add("command");keyWords.add("tribute");
-        keyWords.add("numberOfTributes");keyWords.add(String.valueOf(gameStatus.getTributes().size()));
-        if(address1 != null)
-            keyWords.add("address1");keyWords.add(String.valueOf(address1));
-        if(address2 != null)
-            keyWords.add("address2");keyWords.add(String.valueOf(address2));
-
-        ApiMessage response = responseFromApi(keyWords);
-        if(response.getType().equals(ApiMessage.error)){
-            showNewGameLog(Color.RED,response.getMessage(),3000);
-            gameStatus.reset(null);
-            return;
-        }else{
-            showNewGameLog(Color.GREEN,"monster was summoned.",3000);
-            gameStatus.reset(null);
-            BoardJson newBoard = getBoard();
-            board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
-            board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
-        }
-    }
-
     public void handleSetMonster(ActionEvent actionEvent) throws Exception {
         if(gameStatus.getGameMode() == GameMode.SELECTED_CARD){
             ArrayList<String> keyWords = new ArrayList<>();
             keyWords.add("command");keyWords.add("setMonster");
             ApiMessage response = responseFromApi(keyWords);
             if(response.getType().equals(ApiMessage.error)){
-                showNewGameLog(Color.DARKRED,response.getMessage(),2000);
+                showNewGameLog(Color.RED,response.getMessage(),2000);
                 return;
             }
             int tributeCount = (new JSONObject(response.getMessage())).getInt("tribute");
@@ -255,14 +190,6 @@ public class GameViewController {
             if(tributeCount == 0)
                 setMonsterSelectedCard();
         }
-    }
-
-    public void setMonsterSelectedCard() throws Exception {
-        showNewGameLog(Color.GREEN,"monster was set.",3000);
-        gameStatus.reset(null);
-        BoardJson newBoard = getBoard();
-        board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
-        board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
     }
 
     public void handleAttack(ActionEvent actionEvent) {
@@ -277,7 +204,7 @@ public class GameViewController {
         keyWords.add("command");keyWords.add("directAttack");
         ApiMessage response = responseFromApi(keyWords);
         if(response.getType().equals(ApiMessage.error)){
-            showNewGameLog(Color.DARKRED,response.getMessage(),2000);
+            showNewGameLog(Color.RED,response.getMessage(),2000);
             return;
         }
         int damage = new JSONObject(response.getMessage()).getInt("damage");
@@ -293,7 +220,7 @@ public class GameViewController {
         keyWords.add("command");keyWords.add("changeMonsterMode");
         ApiMessage response = responseFromApi(keyWords);
         if(response.getType().equals(ApiMessage.error)){
-            showNewGameLog(Color.DARKRED,response.getMessage(),2000);
+            showNewGameLog(Color.RED,response.getMessage(),2000);
             return;
         }
         showNewGameLog(Color.GREEN,"monster mode changed.",3000);
@@ -336,7 +263,51 @@ public class GameViewController {
         board.getActivePlayer().buildSpellZone(newBoard.getActivePlayer().getSpellZone(),ActivePlayerCardsCoordinates.spellZone);
     }
 
-    public void handleEnd(ActionEvent actionEvent) {
+
+    public void summonSelectedCard(boolean withoutTributes) throws Exception {
+        if(withoutTributes){
+            showNewGameLog(Color.GREEN,"monster was summoned.",3000);
+            gameStatus.reset(null);
+            BoardJson newBoard = getBoard();
+            board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+            board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
+            return;
+        }
+
+        Integer address1 = null;Integer address2 = null;
+        if(gameStatus.getTributes().size() >= 1)
+            address1 = board.getActivePlayer().getId(Arrays.asList(board.getActivePlayer().getMonsterZone()),gameStatus.getTributes().get(0));
+        if(gameStatus.getTributes().size() >= 2)
+            address2 = board.getActivePlayer().getId(Arrays.asList(board.getActivePlayer().getMonsterZone()),gameStatus.getTributes().get(1));
+
+        ArrayList<String> keyWords = new ArrayList<>();
+        keyWords.add("command");keyWords.add("tribute");
+        keyWords.add("numberOfTributes");keyWords.add(String.valueOf(gameStatus.getTributes().size()));
+        if(address1 != null)
+            keyWords.add("address1");keyWords.add(String.valueOf(address1));
+        if(address2 != null)
+            keyWords.add("address2");keyWords.add(String.valueOf(address2));
+
+        ApiMessage response = responseFromApi(keyWords);
+        if(response.getType().equals(ApiMessage.error)){
+            showNewGameLog(Color.RED,response.getMessage(),3000);
+            gameStatus.reset(null);
+            return;
+        }else{
+            showNewGameLog(Color.GREEN,"monster was summoned.",3000);
+            gameStatus.reset(null);
+            BoardJson newBoard = getBoard();
+            board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+            board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
+        }
+    }
+
+    public void setMonsterSelectedCard() throws Exception {
+        showNewGameLog(Color.GREEN,"monster was set.",3000);
+        gameStatus.reset(null);
+        BoardJson newBoard = getBoard();
+        board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+        board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
     }
 
     public void checkGameOver() throws Exception {
@@ -368,6 +339,66 @@ public class GameViewController {
 
         cardAddress = "../../Image/Cards/" + cardAddress + ".jpg";
         return  getClass().getResource(cardAddress).toExternalForm();
+    }
+
+    public void handlePause(ActionEvent actionEvent) {
+        GameMode nowMode = gameStatus.getGameMode();
+        gameStatus.setGameMode(GameMode.CANT_SELECT_CARD);
+
+        Rectangle hideButtons = new Rectangle(418,179);
+        hideButtons.setLayoutX(0);hideButtons.setLayoutY(796);
+        hideButtons.setFill(Color.BLACK);
+        mainPane.getChildren().add(hideButtons);
+
+        VBox container = new VBox();
+        Button endGame = new Button("End game");
+        Button backToGame = new Button("continue playing.");
+        container.setStyle("-fx-background-color: Blue; -fx-effect:  dropshadow(three-pass-box,  Blue, 50, 0.6, 0, 0)");
+        container.getChildren().addAll(endGame,backToGame);
+        mainPane.getChildren().add(container);
+
+        backToGame.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                mainPane.getChildren().removeAll(container,hideButtons);
+                gameStatus.setGameMode(nowMode);
+            }
+        });
+
+        endGame.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                try {
+                    myMainMenu.start(primaryStage);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void resetBoard() throws Exception {
+        board.reset(getBoard());
+    }
+
+    public BoardJson getBoard() throws Exception {
+        ArrayList<String> keyWords = new ArrayList<>();
+        keyWords.add("command");keyWords.add("get_board");
+        ApiMessage newBoard = responseFromApi(keyWords);
+        return new Gson().fromJson(newBoard.getMessage(), BoardJson.class);
+    }
+
+    public void showNewGameLog(Color color,String message, int showTime) {
+        gameLog.add(color,message,showTime);
+    }
+
+    public ApiMessage responseFromApi(ArrayList<String> keyWords) throws Exception {
+        assert keyWords.size()%2 == 0;
+        JSONObject message = new JSONObject();
+        for(int i = 0 ; i < keyWords.size() ; i+=2)
+            message.put(keyWords.get(i), keyWords.get(i + 1));
+        JSONObject jsonAns = api.run(message);
+        return new Gson().fromJson(String.valueOf(jsonAns),ApiMessage.class);
     }
 }
 

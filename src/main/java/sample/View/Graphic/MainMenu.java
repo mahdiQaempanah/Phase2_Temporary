@@ -28,6 +28,7 @@ import java.io.InputStream;
 
 public class MainMenu extends Application {
     static private Stage primaryStage;
+    public Scene myScene;
     public String nickname;
     public Button logOutButton = new Button("logout");
     public Label title = new Label();
@@ -35,6 +36,7 @@ public class MainMenu extends Application {
     public String username;
     public WelcomeMenu myWelcomeMenu;
     public API api;
+
 
     //  public CardMenu cardMenu=new CardMenu();
     //  public ProfileMenu profileMenu=new ProfileMenu();
@@ -49,6 +51,12 @@ public class MainMenu extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        if(myScene != null){
+            primaryStage.setScene(myScene);
+            primaryStage.show();
+            return;
+        }
+
         MainMenu.primaryStage = primaryStage;
         BorderPane root = new BorderPane();
         root.setBottom(logOutButton);
@@ -66,9 +74,8 @@ public class MainMenu extends Application {
         buildLogoutButton();
         buildImportAndExportButton(root);
 
-
-        Scene scene = new Scene(root);
-        primaryStage.setScene(scene);
+        myScene = new Scene(root);
+        primaryStage.setScene(myScene);
         primaryStage.show();
     }
 

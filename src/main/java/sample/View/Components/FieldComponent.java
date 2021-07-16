@@ -1,12 +1,14 @@
 package sample.View.Components;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
@@ -22,17 +24,11 @@ import org.json.JSONObject;
 import sample.Model.ApiMessage;
 import sample.Model.Game.Card.MonsterCard.Mode;
 import sample.Model.Game.Card.Status;
-import sample.Model.JsonObject.AttackInfo;
-import sample.Model.JsonObject.BoardJson;
-import sample.Model.JsonObject.CardBoardInfo;
-import sample.Model.JsonObject.FieldJson;
+import sample.Model.JsonObject.*;
 import sample.View.GameViewController;
 import sun.net.www.content.text.Generic;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 public class FieldComponent {
     public static final Point2D cardSize = new Point2D(104,120);
@@ -56,156 +52,73 @@ public class FieldComponent {
         hand = new ArrayList<>();
     }
 
-    public void build(FieldJson field) {
-        if(isActivePlayer){
-            buildMonsterZone(field.getMonsterZone(),ActivePlayerCardsCoordinates.monsterZone);
-            buildSpellZone(field.getSpellZone(),ActivePlayerCardsCoordinates.spellZone);
-            buildGraveYard(field.getGraveyardSize(),ActivePlayerCardsCoordinates.graveYard);
-            buildDeckZone(field.getDeckSize(),ActivePlayerCardsCoordinates.deckZone);
-            buildUserInfo(field.getNickName(),field.getLife(),ActivePlayerCardsCoordinates.userInfo);
-            buildFieldZone(field.getFieldZone(),ActivePlayerCardsCoordinates.fieldZone);
-            buildHand(field.getHand());
-        }else{
-            buildMonsterZone(field.getMonsterZone(),InactivePlayerCardsCoordinates.monsterZone);
-            buildSpellZone(field.getSpellZone(),InactivePlayerCardsCoordinates.spellZone);
-            buildGraveYard(field.getGraveyardSize(),InactivePlayerCardsCoordinates.graveYard);
-            buildDeckZone(field.getDeckSize(),InactivePlayerCardsCoordinates.deckZone);
-            buildUserInfo(field.getNickName(),field.getLife(),InactivePlayerCardsCoordinates.userInfo);
-            buildFieldZone(field.getFieldZone(),InactivePlayerCardsCoordinates.fieldZone);
-           buildHand(field.getHand());
-        }
-    }
+    private void ShowGraveYard() throws Exception {
+        if(myController.gameStatus.getGameMode() != GameMode.NONE)
+            return;
 
-    public void buildMonsterZone(CardBoardInfo[] monsters, Point2D[] monsterZone) {
-        for (Rectangle monster : this.monsterZone) {
-            if(monster != null)
-                mainPane.getChildren().remove(monster);
-            monster = null;
-        }
+        ArrayList<Rectangle> graveyardCards = new ArrayList<>();
+        myController.gameStatus.setGameMode(GameMode.CANT_SELECT_CARD);
 
-        for(int i = 0 ; i < 5 ; i++){
-            CardBoardInfo monster = monsters[i];
-            if(monster != null){
-                System.out.println("not null");
-                if(monster.getStatus() == Status.SET){
-                    this.monsterZone[i] = addHorizontalCardToPane("CardToBack",monsterZone[i]);
-                }
-                else if(monster.getMode() == Mode.DEFENSE){
-                    this.monsterZone[i] = addHorizontalCardToPane(monster.getName(),monsterZone[i]);
-                }
-                else if(monster.getMode() == Mode.ATTACK){
-                    this.monsterZone[i] = addCardToPane(monster.getName(),monsterZone[i]);
-                }
-            }
-        }
-    }
+        Rectangle hideButtons = new Rectangle(418,179);
+        hideButtons.setLayoutX(0);hideButtons.setLayoutY(796);
+        hideButtons.setFill(Color.BLACK);
+        mainPane.getChildren().add(hideButtons);
 
-    public void buildSpellZone(CardBoardInfo[] spells, Point2D[] spellZone) {
-        for (Rectangle spell : this.spellZone) {
-            if(spell != null)
-                mainPane.getChildren().remove(spell);
-            spell = null;
-        }
+        Rectangle graveyardBackGround = new Rectangle(352,1000);
+        graveyardBackGround.setLayoutX(0);graveyardBackGround.setLayoutY(113);
+        graveyardBackGround.setFill(Color.GRAY);
+        graveyardBackGround.setStyle("-fx-effect: dropshadow(three-pass-box,  Gray, 50, 0.6, 0, 0)");
+        mainPane.getChildren().add(graveyardBackGround);
 
-        for(int i = 0 ; i < 5 ; i++){
-            CardBoardInfo spell = spells[i];
-            if(spell != null){
-                if(spell.getStatus() == Status.SET){
-                    this.spellZone[i] = addCardToPane("CardToBack",spellZone[i]);
-                }
-                else
-                    this.spellZone[i] = addCardToPane(spell.getName(),spellZone[i]);
-            }
-        }
-    }
 
-    public void buildGraveYard(int graveYardSizeInt, Point2D graveYard) {
-        if(this.graveYardSize != null){
-            mainPane.getChildren().remove(this.graveYardSize);
-            this.graveYardSize = null;
-        }
-
-        graveYardSize = new Label();
-        //graveYardSize.setLayoutX(442);graveYardSize.setLayoutY(380);
-        graveYardSize.setLayoutX(graveYard.getX());graveYardSize.setLayoutY(graveYard.getY());
-        graveYardSize.setPrefWidth(102);graveYardSize.setPrefHeight(52);
-        graveYardSize.setAlignment(Pos.CENTER);
-        graveYardSize.setTextFill(Color.WHITE);
-        graveYardSize.setFont(Font.font("Webdings",35));
-        graveYardSize.setText("+"+graveYardSizeInt);
-        graveYardSize.setCursor(Cursor.HAND);
-        graveYardSize.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        Rectangle exitGraveYard = new Rectangle(32,32);
+        exitGraveYard.setLayoutX(333);exitGraveYard.setLayoutY(104);
+        exitGraveYard.setFill(new ImagePattern(new Image(getClass().getResource("../../../Image/blueExitButton.png").toExternalForm())));
+        exitGraveYard.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                ShowGraveYard();
+                exitGraveYard.setEffect(new DropShadow());
             }
         });
+        exitGraveYard.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                exitGraveYard.setEffect(null);
+            }
 
-        mainPane.getChildren().add(graveYardSize);
-    }
+        });
+        exitGraveYard.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                myController.gameStatus.setGameMode(GameMode.NONE);
+                mainPane.getChildren().removeAll(exitGraveYard,graveyardBackGround,hideButtons);
+                for (Rectangle node : graveyardCards) {
+                    mainPane.getChildren().remove(node);
+                }
+            }
+        });
+        exitGraveYard.setCursor(Cursor.HAND);
+        mainPane.getChildren().add(exitGraveYard);
 
-    public void buildDeckZone(int deckSize, Point2D deckZone) {
-        if(this.deckZoneSize != null){
-            mainPane.getChildren().remove(this.deckZoneSize);
-            this.deckZoneSize = null;
+        ArrayList<String> keyWords = new ArrayList<>();
+        keyWords.add("command");keyWords.add("showGraveyard");
+        keyWords.add("isActivePlayer");keyWords.add(String.valueOf(isActivePlayer));
+        ArrayList<CardGeneralInfo> response = new Gson().fromJson(myController.responseFromApi(keyWords).getMessage(),new TypeToken<List<CardGeneralInfo>>(){}.getType());
+        for (int i = 0 ; i < response.size() ; i++) {
+            System.out.println(i);
+            Rectangle graveyardCard = new Rectangle(cardSize.getX()*2,cardSize.getY()*2);
+            graveyardCard.setLayoutX(48);graveyardCard.setLayoutY(151 + i*(65));
+            graveyardCard.setFill(new ImagePattern(new Image(myController.getCardPictureAddress(response.get(i).getName()))));
+            mainPane.getChildren().add(graveyardCard);
+            graveyardCard.setOnMouseEntered(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    mainPane.getChildren().remove(graveyardCard);
+                    mainPane.getChildren().add(graveyardCard);
+                }
+            });
+            graveyardCards.add(graveyardCard);
         }
-        deckZoneSize = new Label();
-        deckZoneSize.setLayoutX(deckZone.getX());deckZoneSize.setLayoutY(deckZone.getY());
-        deckZoneSize.setPrefWidth(102);deckZoneSize.setPrefHeight(52);
-        deckZoneSize.setAlignment(Pos.CENTER);
-        deckZoneSize.setTextFill(Color.WHITE);
-        deckZoneSize.setFont(Font.font("Webdings",35));
-        deckZoneSize.setText("+"+deckSize);
-        mainPane.getChildren().add(deckZoneSize);
-    }
-
-    public void buildUserInfo(String nickName, int life, Point2D userInfo) {
-        if(this.userInfo != null)
-            mainPane.getChildren().remove(this.userInfo);
-
-        this.userInfo = new Label();
-        this.userInfo.setPrefWidth(1000);
-        this.userInfo.setPrefHeight(1000);
-        this.userInfo.setLayoutX(userInfo.getX());this.userInfo.setLayoutY(userInfo.getY());
-        this.userInfo.setPrefWidth(102);this.userInfo.setPrefHeight(52);
-        this.userInfo.setTextFill(Color.WHITE);
-        this.userInfo.setFont(Font.font("Webdings",15));
-        this.userInfo.setText("nickname: " + nickName + "\nLp: " + life);
-
-        mainPane.getChildren().add(this.userInfo);
-    }
-
-    public void buildFieldZone(CardBoardInfo fieldZoneInfo, Point2D fieldZoneCoordinates) {
-        if(fieldZone != null){
-            mainPane.getChildren().remove(fieldZone);
-            fieldZone = null;
-        }
-        if(fieldZoneInfo != null)
-            fieldZone = addCardToPane(fieldZoneInfo.getName(),fieldZoneCoordinates);
-    }
-
-    public void buildHand(ArrayList<CardBoardInfo> hand){
-        ArrayList<String> handCardsName = new ArrayList<>();
-
-        for (Rectangle card : this.hand) {
-            if(card != null)
-                mainPane.getChildren().remove(card);
-            card = null;
-        }
-        this.hand.clear();
-
-        if(isActivePlayer){
-            for(int i = 0 ; i < hand.size() ; i++)
-                this.hand.add(addCardToPane(hand.get(i).getName(),new Point2D(ActivePlayerCardsCoordinates.startHand.getX()+i*(cardSize.getX()*0.66),
-                        ActivePlayerCardsCoordinates.startHand.getY())));
-        }else{
-            for(int i = 0 ; i < hand.size() ; i++)
-                this.hand.add(addCardToPane("CardToBack",new Point2D(InactivePlayerCardsCoordinates.startHand.getX()+i*(cardSize.getX()*0.66),
-                        InactivePlayerCardsCoordinates.startHand.getY())));
-        }
-    }
-
-    private void ShowGraveYard() {
     }
 
     private Rectangle addCardToPane(String cardName,Point2D coordinates){
@@ -344,19 +257,10 @@ public class FieldComponent {
         myController.checkGameOver();
     }
 
+
     private void showCardInfo(String cardName) {
         myController.cardInfo.setFill(new ImagePattern(new Image(myController.getCardPictureAddress(cardName))));
         //Todo: fix this
-    }
-
-    public int getId(Collection searchIn, Object searchFor){
-        int ans = -1;
-        for (Object o : searchIn) {
-            ans++;
-            if(searchFor.equals(o))
-                return ans;
-        }
-        return -1;
     }
 
     public void activateCard(Rectangle card){
@@ -400,12 +304,172 @@ public class FieldComponent {
         myController.checkGameOver();
     }
 
-    public static Point2D getCardSize() {
-        return cardSize;
+    public int getId(Collection searchIn, Object searchFor){
+        int ans = -1;
+        for (Object o : searchIn) {
+            ans++;
+            if(searchFor.equals(o))
+                return ans;
+        }
+        return -1;
     }
 
-    public Rectangle[] getMonsterZone() {
-        return monsterZone;
+
+    public void build(FieldJson field) {
+        if(isActivePlayer){
+            buildMonsterZone(field.getMonsterZone(),ActivePlayerCardsCoordinates.monsterZone);
+            buildSpellZone(field.getSpellZone(),ActivePlayerCardsCoordinates.spellZone);
+            buildGraveYard(field.getGraveyardSize(),ActivePlayerCardsCoordinates.graveYard);
+            buildDeckZone(field.getDeckSize(),ActivePlayerCardsCoordinates.deckZone);
+            buildUserInfo(field.getNickName(),field.getLife(),ActivePlayerCardsCoordinates.userInfo);
+            buildFieldZone(field.getFieldZone(),ActivePlayerCardsCoordinates.fieldZone);
+            buildHand(field.getHand());
+        }else{
+            buildMonsterZone(field.getMonsterZone(),InactivePlayerCardsCoordinates.monsterZone);
+            buildSpellZone(field.getSpellZone(),InactivePlayerCardsCoordinates.spellZone);
+            buildGraveYard(field.getGraveyardSize(),InactivePlayerCardsCoordinates.graveYard);
+            buildDeckZone(field.getDeckSize(),InactivePlayerCardsCoordinates.deckZone);
+            buildUserInfo(field.getNickName(),field.getLife(),InactivePlayerCardsCoordinates.userInfo);
+            buildFieldZone(field.getFieldZone(),InactivePlayerCardsCoordinates.fieldZone);
+            buildHand(field.getHand());
+        }
+    }
+
+    public void buildMonsterZone(CardBoardInfo[] monsters, Point2D[] monsterZone) {
+        for (Rectangle monster : this.monsterZone) {
+            if(monster != null)
+                mainPane.getChildren().remove(monster);
+            monster = null;
+        }
+
+        for(int i = 0 ; i < 5 ; i++){
+            CardBoardInfo monster = monsters[i];
+            if(monster != null){
+                System.out.println("not null");
+                if(monster.getStatus() == Status.SET){
+                    this.monsterZone[i] = addHorizontalCardToPane("CardToBack",monsterZone[i]);
+                }
+                else if(monster.getMode() == Mode.DEFENSE){
+                    this.monsterZone[i] = addHorizontalCardToPane(monster.getName(),monsterZone[i]);
+                }
+                else if(monster.getMode() == Mode.ATTACK){
+                    this.monsterZone[i] = addCardToPane(monster.getName(),monsterZone[i]);
+                }
+            }
+        }
+    }
+
+    public void buildSpellZone(CardBoardInfo[] spells, Point2D[] spellZone) {
+        for (Rectangle spell : this.spellZone) {
+            if(spell != null)
+                mainPane.getChildren().remove(spell);
+            spell = null;
+        }
+
+        for(int i = 0 ; i < 5 ; i++){
+            CardBoardInfo spell = spells[i];
+            if(spell != null){
+                if(spell.getStatus() == Status.SET){
+                    this.spellZone[i] = addCardToPane("CardToBack",spellZone[i]);
+                }
+                else
+                    this.spellZone[i] = addCardToPane(spell.getName(),spellZone[i]);
+            }
+        }
+    }
+
+    public void buildGraveYard(int graveYardSizeInt, Point2D graveYard) {
+        if(this.graveYardSize != null){
+            mainPane.getChildren().remove(this.graveYardSize);
+            this.graveYardSize = null;
+        }
+
+        graveYardSize = new Label();
+        //graveYardSize.setLayoutX(442);graveYardSize.setLayoutY(380);
+        graveYardSize.setLayoutX(graveYard.getX());graveYardSize.setLayoutY(graveYard.getY());
+        graveYardSize.setPrefWidth(102);graveYardSize.setPrefHeight(52);
+        graveYardSize.setAlignment(Pos.CENTER);
+        graveYardSize.setTextFill(Color.WHITE);
+        graveYardSize.setFont(Font.font("Webdings",35));
+        graveYardSize.setText("+"+graveYardSizeInt);
+        graveYardSize.setCursor(Cursor.HAND);
+        graveYardSize.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                try {
+                    ShowGraveYard();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+            }
+        });
+
+        mainPane.getChildren().add(graveYardSize);
+    }
+
+    public void buildDeckZone(int deckSize, Point2D deckZone) {
+        if(this.deckZoneSize != null){
+            mainPane.getChildren().remove(this.deckZoneSize);
+            this.deckZoneSize = null;
+        }
+        deckZoneSize = new Label();
+        deckZoneSize.setLayoutX(deckZone.getX());deckZoneSize.setLayoutY(deckZone.getY());
+        deckZoneSize.setPrefWidth(102);deckZoneSize.setPrefHeight(52);
+        deckZoneSize.setAlignment(Pos.CENTER);
+        deckZoneSize.setTextFill(Color.WHITE);
+        deckZoneSize.setFont(Font.font("Webdings",35));
+        deckZoneSize.setText("+"+deckSize);
+        mainPane.getChildren().add(deckZoneSize);
+    }
+
+    public void buildUserInfo(String nickName, int life, Point2D userInfo) {
+        if(this.userInfo != null)
+            mainPane.getChildren().remove(this.userInfo);
+
+        this.userInfo = new Label();
+        this.userInfo.setPrefWidth(1000);
+        this.userInfo.setPrefHeight(1000);
+        this.userInfo.setLayoutX(userInfo.getX());this.userInfo.setLayoutY(userInfo.getY());
+        this.userInfo.setPrefWidth(102);this.userInfo.setPrefHeight(52);
+        this.userInfo.setTextFill(Color.WHITE);
+        this.userInfo.setFont(Font.font("Webdings",15));
+        this.userInfo.setText("nickname: " + nickName + "\nLp: " + life);
+
+        mainPane.getChildren().add(this.userInfo);
+    }
+
+    public void buildFieldZone(CardBoardInfo fieldZoneInfo, Point2D fieldZoneCoordinates) {
+        if(fieldZone != null){
+            mainPane.getChildren().remove(fieldZone);
+            fieldZone = null;
+        }
+        if(fieldZoneInfo != null)
+            fieldZone = addCardToPane(fieldZoneInfo.getName(),fieldZoneCoordinates);
+    }
+
+    public void buildHand(ArrayList<CardBoardInfo> hand){
+        ArrayList<String> handCardsName = new ArrayList<>();
+
+        for (Rectangle card : this.hand) {
+            if(card != null)
+                mainPane.getChildren().remove(card);
+            card = null;
+        }
+        this.hand.clear();
+
+        if(isActivePlayer){
+            for(int i = 0 ; i < hand.size() ; i++)
+                this.hand.add(addCardToPane(hand.get(i).getName(),new Point2D(ActivePlayerCardsCoordinates.startHand.getX()+i*(cardSize.getX()*0.66),
+                        ActivePlayerCardsCoordinates.startHand.getY())));
+        }else{
+            for(int i = 0 ; i < hand.size() ; i++)
+                this.hand.add(addCardToPane("CardToBack",new Point2D(InactivePlayerCardsCoordinates.startHand.getX()+i*(cardSize.getX()*0.66),
+                        InactivePlayerCardsCoordinates.startHand.getY())));
+        }
+    }
+
+    public static Point2D getCardSize() {
+        return cardSize;
     }
 
     public Rectangle[] getSpellZone() {
@@ -414,6 +478,10 @@ public class FieldComponent {
 
     public Rectangle getFieldZone() {
         return fieldZone;
+    }
+
+    public Rectangle[] getMonsterZone() {
+        return monsterZone;
     }
 
     public ArrayList<Rectangle> getHand() {

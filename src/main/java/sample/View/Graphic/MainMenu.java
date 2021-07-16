@@ -22,11 +22,13 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import sample.Controller.API;
+import sample.View.DeckMenuController;
 import sample.View.GameViewController;
 import sample.View.ShopMenuController;
 
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 public class MainMenu extends Application {
@@ -176,6 +178,7 @@ public class MainMenu extends Application {
     }
 
     private void buildCardButton(BorderPane root) {
+        MainMenu me = this;
         Rectangle cardButton = new Rectangle();
         cardButton.setWidth(100);cardButton.setHeight(100);
 
@@ -188,16 +191,17 @@ public class MainMenu extends Application {
         cardButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                //set prior
-                /*
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("../../../Fxml/DeckMenu.fxml"));
+                Parent root = null;
                 try {
-                    CardMenu cardMenu=new CardMenu();
-                    cardMenu.start(primaryStage);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    root = loader.load();
+                    DeckMenuController controller = (DeckMenuController) loader.getController();
+                    primaryStage.setScene(new Scene(root));
+                    primaryStage.show();
+                    controller.start(primaryStage,me,api);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
                 }
-
-                 */
             }
         });
     }

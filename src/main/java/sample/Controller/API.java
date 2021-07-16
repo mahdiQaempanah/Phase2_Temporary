@@ -121,26 +121,43 @@ public class API {
             return new JSONObject(programController.showShopCards());
         }
 
-        if(commandType.equals("crate_deck")){
+        if(commandType.equals("createDeck")){
             return new JSONObject(programController.createDeck((String) request.get("deckName")));
         }
-        if(commandType.equals("delete_deck")){
+        if(commandType.equals("deleteDeck")){
             return new JSONObject(programController.deleteDeck((String) request.get("deckName")));
         }
-        if(commandType.equals("set_deck_activate")){
+        if(commandType.equals("setDeckActivate")){
             return new JSONObject(programController.selectActiveDeck((String) request.get("deckName")));
         }
         if(commandType.equals("showAllDecks")){
             return new JSONObject(programController.showAllDeck());
         }
+        if(commandType.equals("showDeck")){
+            String deckName = (String) request.get("deckName");
+            boolean isSideDeck = !(Boolean.parseBoolean( request.get("isMainSide").toString()));
+            return new JSONObject(programController.showDeck(deckName,isSideDeck));
+        }
+        if(commandType.equals("addCardToDeck")){
+            String deckName = (String) request.get("deckName");
+            String cardName = (String) request.get("cardName");
+            boolean isSideDeck = !(Boolean.parseBoolean( request.get("isMainDeck").toString()));
+            return new JSONObject(programController.addCardToDeck(cardName,deckName,isSideDeck));
+        }
+        if(commandType.equals("removeCardFromDeck")){
+            String deckName = (String) request.get("deckName");
+            String cardName = (String) request.get("cardName");
+            boolean isSideDeck = !(Boolean.parseBoolean( request.get("isMainDeck").toString()));
+            return new JSONObject(programController.removeCardFromDeck(cardName,deckName,isSideDeck));
+        }
+
+
         if(commandType.equals("back_select")){
             return new JSONObject(gameController.deselectCard());
         }
         if(commandType.equals("show_selected_card")){
             return new JSONObject(gameController.getSelectedCard());
         }
-
-
 
         if(commandType.equals("increase_money")){
             return new JSONObject(programController.increaseMoney( Integer.parseInt( request.get("amount").toString())));
@@ -165,23 +182,6 @@ public class API {
         }
         if(commandType.equals("change_Profile_password")){
             return new JSONObject(programController.changePassword((String) request.get("currentPass"),(String) request.get("newPass")));
-        }
-        if(commandType.equals("add_card_deck")){
-            String deckName = (String) request.get("deckName");
-            String cardName = (String) request.get("cardName");
-            boolean isSideDeck = !(Boolean.parseBoolean( request.get("main_side_?").toString()));
-            return new JSONObject(programController.addCardToDeck(cardName,deckName,isSideDeck));
-        }
-        if(commandType.equals("remove_card_deck")){
-            String deckName = (String) request.get("deckName");
-            String cardName = (String) request.get("cardName");
-            boolean isSideDeck = !(Boolean.parseBoolean( request.get("main_side_?").toString()));
-            return new JSONObject(programController.removeCardFromDeck(cardName,deckName,isSideDeck));
-        }
-        if(commandType.equals("show_deck")){
-            String deckName = (String) request.get("deckName");
-            boolean isSideDeck = !(Boolean.parseBoolean( request.get("main_side_?").toString()));
-            return new JSONObject(programController.showDeck(deckName,isSideDeck));
         }
         if(commandType.equals("show_deck_all")){
             return new JSONObject(programController.showAllDeck());

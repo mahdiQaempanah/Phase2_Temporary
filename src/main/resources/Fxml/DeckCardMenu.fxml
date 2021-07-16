@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane fx:id="mainPane" prefHeight="1030.0" prefWidth="1950.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.View.DeckCardMenuController">
+   <children>
+      <Label layoutX="19.0" layoutY="599.0" prefHeight="182.0" prefWidth="427.0" text="Main Deck:" textFill="RED">
+         <font>
+            <Font name="Eras Bold ITC" size="60.0" />
+         </font>
+      </Label>
+      <Label layoutX="17.0" layoutY="251.0" prefHeight="182.0" prefWidth="427.0" text="Side Deck:" textFill="RED">
+         <font>
+            <Font name="Eras Bold ITC" size="60.0" />
+         </font>
+      </Label>
+      <Button layoutX="3.0" layoutY="6.0" mnemonicParsing="false" onAction="#handleBack" prefHeight="62.0" prefWidth="141.0" style="-fx-background-color: red; -fx-cursor: hand;" text="back" textFill="WHITE">
+         <font>
+            <Font size="28.0" />
+         </font>
+      </Button>
+      <TextField fx:id="sideField" layoutX="15.0" layoutY="383.0" prefHeight="43.0" prefWidth="308.0" />
+      <TextField fx:id="mainField" layoutX="19.0" layoutY="731.0" prefHeight="43.0" prefWidth="308.0" />
+      <Button layoutX="16.0" layoutY="439.0" mnemonicParsing="false" onAction="#handleAddNewCardToSideDeck" prefHeight="5.0" prefWidth="146.0" style="-fx-background-color: green;" text="add" textFill="WHITE">
+         <font>
+            <Font size="25.0" />
+         </font>
+      </Button>
+      <Button layoutX="19.0" layoutY="788.0" mnemonicParsing="false" onAction="#handleAddNewCardToMainDeck" prefHeight="5.0" prefWidth="146.0" style="-fx-background-color: green;" text="add" textFill="WHITE">
+         <font>
+            <Font size="25.0" />
+         </font>
+      </Button>
+      <Button layoutX="1427.0" layoutY="5.0" mnemonicParsing="false" onAction="#handleDelete" prefHeight="56.0" prefWidth="116.0" style="-fx-background-color: blue; -fx-cursor: hand;" text="delete" textFill="WHITE">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Button>
+      <Label fx:id="apiLog" layoutX="21.0" layoutY="77.0" prefHeight="59.0" textFill="WHITE">
+         <font>
+            <Font size="21.0" />
+         </font>
+      </Label>
+      <ImageView fx:id="cardInfo" fitHeight="427.0" fitWidth="359.0" layoutX="1561.0" layoutY="20.0" pickOnBounds="true" preserveRatio="true" />
+      <Label layoutX="383.0" layoutY="628.0" text="Label" />
+   </children>
+</AnchorPane>

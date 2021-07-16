@@ -38,4 +38,10 @@ public class ShowDeckJson {
     public ArrayList<CardGeneralInfo> getSpellAndTraps() {
         return spellAndTraps;
     }
+
+    public String getCardName(int id) {
+        if(id < monsters.size())
+            return monsters.get(id).getName();
+        return spellAndTraps.get(id - monsters.size()).getName();
+    }
 }

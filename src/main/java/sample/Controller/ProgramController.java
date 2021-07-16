@@ -419,6 +419,7 @@ public class ProgramController {
             if(spellAndTrap.getName().equals(name))
                 return spellAndTrap;
         }
+        System.out.println();
         return null;
     }
 

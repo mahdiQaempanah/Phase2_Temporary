@@ -11,6 +11,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -38,7 +39,7 @@ public class ScoreBoardMenu extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         // StackPane root = FXMLLoader.load(getClass().getResource("resources/sample.fxml"));
-        Scene scene = new Scene(root, 900, 550);
+        Scene scene = new Scene(root, 800, 550);
         //scene.getStylesheet().add("path/Stylesheet.css");
 
         primaryStage.setScene(scene);
@@ -66,7 +67,7 @@ public class ScoreBoardMenu extends Application {
         scoreBar.setSpacing(5);
         scoreBar.setAlignment(Pos.CENTER);
 
-
+        ScrollPane oops=new ScrollPane();
         ///////////////////////////////////////////////////////////////    ???
 
         int priorScore = 0;
@@ -89,14 +90,20 @@ public class ScoreBoardMenu extends Application {
             }
             priorScore = user.score;
             userLable.setAlignment(Pos.CENTER);
-            userLable.setStyle("-fx-background-color:white;-fx-border-color: black;-fx-border-width:2;-fx-border-radius:3;-fx-hgap:3;-fx-vgap:5;-fx-alignment: center center" +
-                    ";-fx-font-size: 30 px");
+            userLable.setMaxWidth(800);
+            userLable.setStyle("-fx-background-color:gray;-fx-border-color: black;-fx-border-width:2;-fx-border-radius:3;-fx-hgap:3;-fx-vgap:5;" +
+                   ";-fx-font-size: 30 px");
             scoreBar.getChildren().add(userLable);
+            scoreBar.setAlignment(Pos.CENTER);
+
 
 
         }
+oops.contentProperty().set(scoreBar);
+        oops.setStyle("-fx-alignment: center center;-fx-padding: 50 150 50 150");
 
-        root.getChildren().add(scoreBar);
+        root.setCenter(oops);
+        BorderPane.setAlignment(oops,Pos.CENTER);
         //////////////////////////////////////////////////////////////
 
 
@@ -107,14 +114,14 @@ public class ScoreBoardMenu extends Application {
         backbutton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                /*
+
                 try {
                     mainMenu.start(primaryStage);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
-                 */
+
             }
 
         });

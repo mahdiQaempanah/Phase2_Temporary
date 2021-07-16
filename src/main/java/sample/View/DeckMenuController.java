@@ -35,7 +35,7 @@ public class DeckMenuController {
         ShowAllDecksJson allDecks = new Gson().fromJson(responseFromApi(keyWords).getMessage(),ShowAllDecksJson.class);
 
         for (DeckGeneralInfo deckInfo : allDecks.decks) {
-            DeckComponent deck = new DeckComponent(deckInfo.name);
+            DeckComponent deck = new DeckComponent();
         }
     }
 

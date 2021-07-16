@@ -22,6 +22,7 @@ import sample.Model.JsonObject.ScoreboardInfo;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -69,37 +70,31 @@ public class ScoreBoardMenu extends Application {
 
         ScrollPane oops=new ScrollPane();
         ///////////////////////////////////////////////////////////////    ???
-
-        int priorScore = 0;
-        int i = 1, j = 1;
-        for (ScoreboardInfo user : loadScores()) {
-            String scoreLine;
-            Label userLable = new Label();
-            if (j == 20) break;
-
-            if (i == 1) {
-                userLable.setText(i + "- " + user.nickname + ": " + user.score);
-                j++;
-            } else if (user.score == priorScore) {
-                userLable.setText(i + "-  " + user.nickname + ": " + user.score);
-                j++;
-            } else {
-                userLable.setText(j + "- " + user.nickname + ":  " + user.score);
-                i = j;
-                j++;
-            }
-            priorScore = user.score;
+        JSONObject response = js_Pass("command", "show_scorboard");
+        Gson gson = new Gson();
+        Type userListType = new TypeToken<ArrayList<ScoreboardInfo>>() {
+        }.getType();
+        ArrayList<ScoreboardInfo> scoreboardInfos = gson.fromJson((String) response.get("message"), userListType);
+        int rank = 1;
+        int prvScore = 0;
+        scoreboardInfos.sort(Comparator.comparing(ScoreboardInfo::getNickname));
+        scoreboardInfos.sort(Comparator.comparing(ScoreboardInfo::getScore));
+        for(int i=scoreboardInfos.size()-1 ;i>=0;i--){
+            Label userLable=new Label();
+            if(scoreboardInfos.get(i).getScore() < prvScore) rank++;
+            userLable.setText(rank + "-" + scoreboardInfos.get(i).getNickname() + ":" + scoreboardInfos.get(i).getScore());
+            prvScore = scoreboardInfos.get(i).getScore();
             userLable.setAlignment(Pos.CENTER);
             userLable.setMaxWidth(800);
             userLable.setStyle("-fx-background-color:gray;-fx-border-color: black;-fx-border-width:2;-fx-border-radius:3;-fx-hgap:3;-fx-vgap:5;" +
-                   ";-fx-font-size: 30 px");
+                    ";-fx-font-size: 30 px");
             scoreBar.getChildren().add(userLable);
-            scoreBar.setAlignment(Pos.CENTER);
-
-
-
         }
-oops.contentProperty().set(scoreBar);
+
+
+        scoreBar.setAlignment(Pos.CENTER);
+
+        oops.contentProperty().set(scoreBar);
         oops.setStyle("-fx-alignment: center center;-fx-padding: 50 150 50 150");
 
         root.setCenter(oops);
@@ -139,49 +134,7 @@ oops.contentProperty().set(scoreBar);
 
     */
 
-    public LinkedList<ScoreboardInfo> loadScores() throws Exception {
 
-        JSONObject response = js_Pass("command", "show_scorboard");
-        Gson gson = new Gson();
-        Type userListType = new TypeToken<ArrayList<ScoreboardInfo>>() {
-        }.getType();
-        ArrayList<ScoreboardInfo> scoreboardInfos = gson.fromJson((String) response.get("message"), userListType);
-
-        LinkedList<ScoreboardInfo> scoreList = new LinkedList<>(scoreboardInfos);
-        List<ScoreboardInfo> interChange = new ArrayList<>();
-        int quantity = scoreboardInfos.size();
-
-        if (quantity == 0) {
-            System.out.println("none");
-            return null;
-        }
-        for (int i = 0; i <= quantity - 2; i++) {
-            for (int j = i + 1; i <= quantity - 1; i++) {
-
-                if (scoreList.get(i).score < scoreList.get(j).score) {
-                    interChange.add(scoreboardInfos.get(j));
-                    scoreList.set(j, scoreList.get(i));
-                    scoreList.set(i, interChange.get(0));
-                    interChange.clear();
-
-                } else if ((scoreList.get(i).score == scoreList.get(j).score)) {
-
-                    if (scoreList.get(i).nickname.compareTo(scoreList.get(j).nickname) < 0) {
-                        interChange.add(scoreList.get(j));
-                        scoreList.set(j, scoreList.get(i));
-                        scoreList.set(i, interChange.get(0));
-                        interChange.clear();
-                    }
-
-                }
-
-
-            }
-
-
-        }
-        return scoreList;
-    }
 
     public JSONObject js_Pass(String... args) throws Exception {
         for (int i = 0; i <= args.length - 2; i += 2) {

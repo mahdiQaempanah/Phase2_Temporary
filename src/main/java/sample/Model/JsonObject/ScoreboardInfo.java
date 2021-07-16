@@ -7,4 +7,15 @@ public class ScoreboardInfo {
         this.nickname = nickname;
         this.score = score;
     }
+
+
+    public String getNickname() {
+        return this.nickname;
+    }
+
+    public  int getScore() {
+        return this.score;
+    }
+
+
 }

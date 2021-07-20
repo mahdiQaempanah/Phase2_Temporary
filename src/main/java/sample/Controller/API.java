@@ -1,19 +1,13 @@
 package sample.Controller;
-
-
-import sample.Model.Game.Card.MonsterCard.Mode;
-import sample.Model.Game.CardAddress;
 import org.json.JSONObject;
+import sample.Model.Game.CardAddress;
 
 public class API {
-    private static boolean justOneObject = false;
     private GameController gameController;
     private ProgramController programController;
     private String request;
 
     public API(){
-        assert !justOneObject;
-        justOneObject = true;
         programController = new ProgramController();
         gameController = new GameController(programController);
     }
@@ -43,9 +37,9 @@ public class API {
             switch (zone){
                 case "monster_zone":
                     if(!(Boolean.parseBoolean( request.get("isActivePlayer").toString())))
-                       selectedCardAddress = CardAddress.OPPONENT_MONSTER_ZONE;
+                        selectedCardAddress = CardAddress.OPPONENT_MONSTER_ZONE;
                     else
-                       selectedCardAddress = CardAddress.MONSTER_ZONE;
+                        selectedCardAddress = CardAddress.MONSTER_ZONE;
                     break;
                 case "spell_zone":
                     if(!(Boolean.parseBoolean( request.get("isActivePlayer").toString())))
@@ -60,7 +54,7 @@ public class API {
                     if(!(Boolean.parseBoolean( request.get("isActivePlayer").toString())))
                         selectedCardAddress = CardAddress.FIELD_ZONE;
                     else
-                        selectedCardAddress = CardAddress.OPPONENT_FIELD_ZONE;
+                        selectedCardAddress =  CardAddress.OPPONENT_FIELD_ZONE;
                     break;
             }
             return new JSONObject(gameController.selectCard(selectedCardAddress, Integer.parseInt(request.get("id").toString())));

@@ -31,7 +31,7 @@ import sample.View.Graphic.LoginMenu;
 import sample.View.Graphic.WelcomeMenu;
 
 public class Main extends Application {
-    public static Point2D stageSize = new Point2D(800, 600);
+    public static Point2D stageSize = new Point2D(1950, 1030);
 
     public static void main(String[] args) throws Exception {
         launch(args);
@@ -56,7 +56,7 @@ public class Main extends Application {
         pane.getChildren().add(card);
         primaryStage.setScene(new Scene(pane));
         primaryStage.show();*/
-     primaryStage.setWidth(stageSize.getX());
+        primaryStage.setWidth(stageSize.getX());
         primaryStage.setHeight(stageSize.getY());
         primaryStage.setTitle("Yu Gi Oh!");
         primaryStage.getIcons().add(new Image(getClass().getResource("../Image/Icon.png").toExternalForm()));

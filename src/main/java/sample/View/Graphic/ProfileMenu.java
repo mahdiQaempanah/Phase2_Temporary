@@ -28,11 +28,15 @@ public class ProfileMenu extends Application {
 
     private String username;
     LoginMenu loginMenu = new LoginMenu();
-    MainMenu mainMenu;
+    MainMenu myMenu;
     public JSONObject request_JSON = new JSONObject();
     public JSONObject response;
-    API request=new API();
+    API request;
 
+    public ProfileMenu(API api,MainMenu mainMenu){
+        request = api;
+        this.myMenu = mainMenu;
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -76,7 +80,7 @@ public class ProfileMenu extends Application {
         //get username
 
         //set picture
-        Label usernameLable = new Label(mainMenu.username);
+        Label usernameLable = new Label(myMenu.username);
 
         usernameLable.setStyle("-fx-background-color:white;-fx-border-color: black;-fx-border-width:2;" +
                 "-fx-border-radius:3;-fx-hgap:3;-fx-vgap:5;-fx-alignment: center ;-fx-font-size: 60 px");
@@ -238,7 +242,7 @@ public class ProfileMenu extends Application {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    mainMenu.start(primaryStage);
+                    myMenu.start(primaryStage);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -254,9 +258,6 @@ public class ProfileMenu extends Application {
 
 
 
-    }
-    public void setPriorMenu(MainMenu mainMenu){
-        this.mainMenu=mainMenu;
     }
 
     public static Matcher commandMatch(String command, String regex) {
@@ -290,8 +291,7 @@ public class ProfileMenu extends Application {
         public boolean changePass(String priorPass,String newPass) throws Exception {
 
 
-            JSONObject response = js_Pass("command", "change_" +
-                    "Profile_password", "currentPass",priorPass, "newPass", newPass);
+            JSONObject response = js_Pass("command", "change_Profile_password", "currentPass",priorPass, "newPass", newPass);
 
             if (response.get("type").equals("error")) return false;
 

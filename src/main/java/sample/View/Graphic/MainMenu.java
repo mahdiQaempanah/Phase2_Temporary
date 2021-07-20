@@ -152,6 +152,7 @@ public class MainMenu extends Application {
     }
 
     private void buildProfileButton(BorderPane root) {
+        MainMenu me = this;
         Rectangle profileButton = new Rectangle();
         profileButton.setWidth(100);profileButton.setHeight(100);
 
@@ -165,8 +166,7 @@ public class MainMenu extends Application {
             @Override
             public void handle(MouseEvent event) {
                 try {
-                    ProfileMenu profileMenu = new ProfileMenu();
-                    profileMenu.setPriorMenu(new MainMenu(username, nickname, api));
+                    ProfileMenu profileMenu = new ProfileMenu(api,me);
                     profileMenu.start(primaryStage);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -207,6 +207,7 @@ public class MainMenu extends Application {
     }
 
     private void buildScoreBoardButton(BorderPane root){
+        MainMenu me = this;
         Rectangle scoreboardButton = new Rectangle();
         scoreboardButton.setWidth(100);scoreboardButton.setHeight(100);
 
@@ -220,8 +221,7 @@ public class MainMenu extends Application {
             @Override
             public void handle(MouseEvent event) {
                 try {
-                    ScoreBoardMenu scoreBoardMenu = new ScoreBoardMenu();
-                    scoreBoardMenu.setPriorMenu(new MainMenu(username, nickname, api));
+                    ScoreBoardMenu scoreBoardMenu = new ScoreBoardMenu(api,me);
                     scoreBoardMenu.start(primaryStage);
                 } catch (Exception e) {
                     e.printStackTrace();

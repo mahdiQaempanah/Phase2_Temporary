@@ -157,13 +157,22 @@ public class ProfileMenu extends Application {
                 buttonS.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
+
+                        JSONObject response =new JSONObject();
                         try {
-                            boolean isDone=changePass(userText.getText(),passtext.getText());
-                            if (! isDone) onTMessaeg.setText("incorrect password");
-                            else popup.hide();
+                            response = js_Pass("command", "change_" +
+                                    "Profile_password", "currentPass",userText.getText().toString(), "newPass",passtext.getText().toString());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+
+                        if (response.get("type").equals("error")) {
+                            onTMessaeg.setText(response.get("message").toString());
+                        }
+                        else {
+                            popup.hide();
+                        }
+
 
                     }
                 });
@@ -219,7 +228,8 @@ public class ProfileMenu extends Application {
                     public void handle(ActionEvent event) {
                        boolean isDone;
                         try {
-                            isDone = changeNickname(nickText.getText());
+                            System.out.println(nickText.getText());
+                            changeNickname(nickText.getText());
                             popup.hide();
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -278,15 +288,15 @@ public class ProfileMenu extends Application {
         return response;
     }
 
-    public boolean changeNickname(String newNickname) throws Exception {
+    public void changeNickname(String newNickname) throws Exception {
 
         JSONObject response
                 = js_Pass("command", "change_Profile_nickname", "nickname", newNickname);
-        if (response.get("type").equals("error")) return true;
+       // if (response.get("type").equals("error")) return false;
 
-        else {
-            return false;
-        }
+     //   else {
+     ///       return true;
+      //  }
     }
         public boolean changePass(String priorPass,String newPass) throws Exception {
 

@@ -1,58 +1,21 @@
-package sample.Controller;
-
-import sample.Model.ApiMessage;
-import sample.Model.Game.Card.Card;
-import sample.Model.Game.Card.Category;
-import sample.Model.Game.Card.GameLogType;
-import sample.Model.Game.Card.MonsterCard.Mode;
-import sample.Model.Game.Card.MonsterCard.MonsterCard;
-import sample.Model.Game.Card.MonsterCard.MonsterCategory;
-import sample.Model.Game.Card.SpellCard.Icon;
-import sample.Model.Game.Card.SpellCard.SpellCard;
-import sample.Model.Game.Card.Status;
-import sample.Model.Game.CardAddress;
-import sample.Model.Game.Game;
-import sample.Model.Game.Phase;
-import sample.Model.Game.Player;
-import sample.Model.JsonObject.*;
-import com.google.gson.Gson;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
+package sample.FakeServer.Controller;
 
 public class GameController{
-    private int lastGameId = -1;
-    private ArrayList<Game> games = new ArrayList<>();
+/*    private Game game ;
     private ProgramController programController;
 
     public GameController(ProgramController programController){
         this.programController = programController;
     }
 
-    public synchronized ApiMessage createGame(AccountJson player1, AccountJson player2) throws Exception {
-        System.out.println("yes");
-        Player playerOne = new Player(player1.getUsername(),player1.getNickname(),cardJsonToString(player1.getActiveDeck().getMainDeck()),cardJsonToString(player1.getActiveDeck().getSideDeck()));
-        Player playerTwo = new Player(player2.getUsername(), player2.getNickname(),cardJsonToString(player2.getActiveDeck().getMainDeck()),cardJsonToString(player2.getActiveDeck().getSideDeck()));
-        lastGameId++;
-        games.add(new Game(playerOne,playerTwo,lastGameId));
-        return new ApiMessage(ApiMessage.successful,"{\"gameCreate\":true,\"gameId\":"+lastGameId+"}");
+    public ApiMessage createGame(AccountJson player1, AccountJson player2, int rounds) throws Exception {
+        Player playerOne = new Player(player1.getNickname(),cardJsonToString(player1.getActiveDeck().getMainDeck()),cardJsonToString(player1.getActiveDeck().getSideDeck()));
+        Player playerTwo = new Player(player2.getNickname(),cardJsonToString(player2.getActiveDeck().getMainDeck()),cardJsonToString(player2.getActiveDeck().getSideDeck()));
+        game = new Game(playerOne, playerTwo, rounds);
+        return new ApiMessage(ApiMessage.successful,"{\"firstTurn\":"+(game.getActivePlayer() == game.getPlayer2())+"}");
     }
 
-    public synchronized ApiMessage isGameStartWithUser(String username) throws Exception {
-        JSONObject ans = new JSONObject();
-        for (Game game : games) {
-            if(game.getPlayer1().getUsername().equals(username) || game.getPlayer2().getUsername().equals(username)){
-                ans.put("isGameStart",true);
-                ans.put("gameId",game.getId());
-                return new ApiMessage(ApiMessage.successful,ans.toString());
-            }
-        }
-        ans.put("isGameStart",false);
-        return new ApiMessage(ApiMessage.successful,ans.toString());
-    }
-
-    public ApiMessage selectCard(int gameId,CardAddress address, int id) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage selectCard(CardAddress address, int id) throws Exception {
         Card selectedCard;
         switch (address){
             case SPELL_ZONE:
@@ -100,8 +63,7 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,"{\"cardName\":\""+game.getActivePlayer().getSelectedCard().getName()+"\"}");
     }
 
-    public ApiMessage deselectCard(int gameId) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage deselectCard() throws Exception {
         if(game.getActivePlayer().getSelectedCard() == null)
             return new ApiMessage(ApiMessage.error,"no card is selected yet");
         game.addToGameLog(GameLogType.DESELECT_CARD, game.getActivePlayer().getSelectedCard().hashCode());
@@ -109,22 +71,19 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,"card deselected");
     }
 
-    public ApiMessage nextPhase(int gameId) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage nextPhase() throws Exception {
         game.addNextPhaseLog(game.getPhase());
         game.nextPhase();
         return new ApiMessage(ApiMessage.successful,new Gson().toJson(game.getPhase()));
     }
 
-    public ApiMessage addCardFromDeckToHand(int gameId) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage addCardFromDeckToHand() throws Exception {
         Card card = game.getActivePlayer().draw();
         game.addToGameLog(GameLogType.ADD_CARD_TO_HAND,card.hashCode());
         return new ApiMessage(ApiMessage.successful,"{\"newCard\":\"" + card.getName() +"\"}");
     }
 
-    public ApiMessage summonMonster(int gameId) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage summonMonster() throws Exception {
         if(game.getActivePlayer().getSelectedCard() == null)
             return new ApiMessage(ApiMessage.error,"no card is selected yet");
 
@@ -168,8 +127,7 @@ public class GameController{
         }
     }
 
-    public ApiMessage getTributeForSummonMonster(int gameId,int victimMonsterCellId) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage getTributeForSummonMonster(int victimMonsterCellId) throws Exception {
         MonsterCard selectedCard = (MonsterCard) game.getActivePlayer().getSelectedCard();
         MonsterCard victimMonster = game.getActivePlayer().getField().getMonsterZone()[victimMonsterCellId];
 
@@ -181,8 +139,7 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,"summoned successfully");
     }
 
-    public ApiMessage getTributesForSummonMonster(int gameId,int victimMonsterCellId1, int victimMonsterCellId2) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage getTributesForSummonMonster(int victimMonsterCellId1, int victimMonsterCellId2) throws Exception {
         MonsterCard selectedCard = (MonsterCard) game.getActivePlayer().getSelectedCard();
         MonsterCard victimMonster1 = game.getActivePlayer().getField().getMonsterZone()[victimMonsterCellId1];
         MonsterCard victimMonster2 = game.getActivePlayer().getField().getMonsterZone()[victimMonsterCellId2];
@@ -195,8 +152,7 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,"summoned successfully");
     }
 
-    public ApiMessage setMonster(int gameId) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage setMonster() throws Exception {
         if(game.getActivePlayer().getSelectedCard() == null)
             return new ApiMessage(ApiMessage.error,"no card is selected yet");
 
@@ -222,8 +178,8 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,"{\"tribute\":0}");
     }
 
-    public ApiMessage changeMonsterMode(int gameId) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage changeMonsterMode() throws Exception {
+
         if(game.getActivePlayer().getSelectedCard() == null)
             return new ApiMessage(ApiMessage.error,"no card is selected yet");
 
@@ -243,8 +199,7 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,"monster card position changed successfully");
     }
 
-    public ApiMessage attack(int gameId,int targetMonsterCellId) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage attack(int targetMonsterCellId) throws Exception {
         if(game.getActivePlayer().getSelectedCard() == null)
             return new ApiMessage(ApiMessage.error,"no card is selected yet");
 
@@ -273,8 +228,7 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,new Gson().toJson(ans));
     }
 
-    public ApiMessage directAttack(int gameId) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage directAttack() throws Exception {
         if(game.getActivePlayer().getSelectedCard() == null)
             return new ApiMessage(ApiMessage.error,"no card is selected yet");
 
@@ -297,8 +251,7 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,"{\"damage\":" + selectedCard.getAtk() + "}");
     }
 
-    public ApiMessage activateEffect(int gameId) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage activateEffect() throws Exception {
         if(game.getActivePlayer().getSelectedCard() == null)
             return new ApiMessage(ApiMessage.error,"no card is selected yet");
 
@@ -328,27 +281,25 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,"spell activated");
     }
 
-    public ApiMessage isRoundOver(int gameId) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage isRoundOver() throws Exception {
         Player looser;
         Player winner;
         if(game.getActivePlayer().getLp() <= 0 || (game.getActivePlayer().getCards().size() == 0 &&  game.getPhase() == Phase.DRAW_PHASE)){
             looser = game.getActivePlayer();
             winner = game.getInactivePlayer();
-            return endRound(gameId,looser,winner);
+            return endRound(looser,winner);
         }
         if(game.getInactivePlayer().getLp() <= 0){
             looser = game.getInactivePlayer();
             winner = game.getActivePlayer();
-            return endRound(gameId,looser,winner);
+            return endRound(looser,winner);
         }
         JSONObject ans = new JSONObject();
         ans.put("isOver",false);
         return new ApiMessage(ApiMessage.successful,ans.toString());
     }
 
-    private ApiMessage endRound(int gameId,Player looser, Player winner) throws Exception {
-        Game game = getGameById(gameId);
+    private ApiMessage endRound(Player looser, Player winner) throws Exception {
         JSONObject ans = new JSONObject();
         ans.put("isOver",true);
         System.out.println(looser.getNickname());
@@ -361,12 +312,11 @@ public class GameController{
         looserAccount.increaseMoney(100);
         programController.changeUserInfoInDataBase(looserAccount);
         programController.changeUserInfoInDataBase(winnerAccount);
-        games.remove(game);
+        game = null;
         return new ApiMessage(ApiMessage.successful,ans.toString());
     }
 
-    public ApiMessage setSpellAndTrap(int gameId) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage setSpellAndTrap() throws Exception {
         if(game.getActivePlayer().getSelectedCard() == null)
             return new ApiMessage(ApiMessage.error,"no card is selected yet");
 
@@ -386,13 +336,11 @@ public class GameController{
     }
 
 
-    public ApiMessage getBoard(int gameId) throws  Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage getBoard() throws  Exception {
         return new ApiMessage(ApiMessage.successful,new Gson().toJson(new BoardJson(new FieldJson(game.getActivePlayer()),new FieldJson(game.getInactivePlayer()))));
     }
 
-    public ApiMessage getGraveyard(int gameId,boolean isActivePlayer) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage getGraveyard(boolean isActivePlayer) throws Exception {
         ArrayList<CardGeneralInfo> ans = new ArrayList<>();
         Player player = game.getInactivePlayer();
         if(isActivePlayer)
@@ -403,8 +351,7 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,new Gson().toJson(ans));
     }
 
-    public ApiMessage getSelectedCard(int gameId) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage getSelectedCard() throws Exception {
         if(game.getActivePlayer().getSelectedCard() == null)
             return new ApiMessage(ApiMessage.error,"no card is selected yet");
 
@@ -421,19 +368,8 @@ public class GameController{
         return new ApiMessage(ApiMessage.successful,ans.toString());
     }
 
-    public ApiMessage getPhase(int gameId) throws Exception {
-        Game game = getGameById(gameId);
+    public ApiMessage getPhase() throws Exception {
         return new ApiMessage(ApiMessage.successful, new Gson().toJson(game.getPhase()));
-    }
-
-    public ApiMessage isActivePlayer(Integer gameId, String userHash) throws Exception {
-        Game game = getGameById(gameId);
-        String ans = "{\"isActivePlayer\":";
-        if(game.getActivePlayer().getUsername().equals(userHash))
-            ans += "true}";
-        else
-            ans += "false}";
-        return new ApiMessage(ApiMessage.successful,ans);
     }
 
     private CardGeneralInfo getCardGeneralInfoFromCard(Card card){
@@ -448,13 +384,5 @@ public class GameController{
         return arrayList;
     }
 
-    private Game getGameById(int id){
-        for (Game game : games) {
-            System.out.println(game.getId());
-            if(game.getId() == id)
-                return game;
-        }
-        return null;
-    }
-
+*/
 }

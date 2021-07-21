@@ -1,33 +1,12 @@
-package sample.Controller;
-
-import org.json.JSONObject;
-import sample.Model.ApiMessage;
-import sample.Model.JsonObject.*;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import sample.Model.RequestForPlayGame;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+package sample.FakeServer.Controller;
 
 public class ProgramController {
-    private final static String usersInfoPath = "target\\classes\\Database\\UsersInfo.txt";
+  /*  private final static String usersInfoPath = "target\\classes\\Database\\UsersInfo.txt";
     private final static String monstersInfoPath = "target\\classes\\Database\\MonstersInfo.txt";
     private final static String spellAndTrapsINfoPath = "target\\classes\\Database\\Spell&TrapsInfo.txt";
-    private ArrayList<AccountJson> loggedInUsers = new ArrayList<>();
-    private ArrayList<RequestForPlayGame> requestForPlayGames = new ArrayList<>();
-    private GameController gameController;
+    private AccountJson loggedInUser ;
 
     public ProgramController(){
-    }
-
-    public void setGameController(GameController gameController){
-        this.gameController = gameController;
     }
 
     public ApiMessage register(String username, String password, String nickname) throws Exception {
@@ -58,14 +37,14 @@ public class ProgramController {
         }
 
         else{
-            addLoggedInUser(getUserInfoByUsername(username));
-            return new ApiMessage(ApiMessage.successful, "{\"message\":\"user logged in successfully!\",\"userHash\":\""+username+"\"}");
+            setLoggedInUser(getUserInfoByUsername(username));
+            return new ApiMessage(ApiMessage.successful, "user logged in successfully!");
         }
 
     }
 
-    public ApiMessage logout(String userHash) throws Exception {
-        deleteLoggedInUser(userHash);
+    public ApiMessage logout() throws Exception {
+        setLoggedInUser(null);
         return new ApiMessage(ApiMessage.successful,"user logged out successfully!");
     }
 
@@ -75,20 +54,19 @@ public class ProgramController {
         return new ApiMessage(ApiMessage.successful,new Gson().toJson(scoreboard));
     }
 
-    public ApiMessage changeNickname(String userHash,String nickname) throws Exception {
+    public ApiMessage changeNickname(String nickname) throws Exception {
+
         if(doesUserWithThisNicknameExist(nickname)){
             return new ApiMessage(ApiMessage.error,"user with nickname " + nickname + " already exists");
         }
         else{
-            AccountJson loggedInUser = getLoggedInUserByUsername(userHash);
             loggedInUser.setNickname(nickname);
             changeUserInfoInDataBase(loggedInUser);
             return new ApiMessage(ApiMessage.successful,"nickname changed successfully!");
         }
     }
 
-    public ApiMessage changePassword(String userHash,String currentPassword, String newPassword) throws Exception {
-        AccountJson loggedInUser = getLoggedInUserByUsername(userHash);
+    public ApiMessage changePassword(String currentPassword, String newPassword) throws Exception {
 
         if(!loggedInUser.getPassword().equals(currentPassword)){
             return new ApiMessage(ApiMessage.error,"current password is invalid");
@@ -105,8 +83,8 @@ public class ProgramController {
         }
     }
 
-    public ApiMessage createDeck(String userHash, String deckName) throws Exception {
-        AccountJson loggedInUser = getLoggedInUserByUsername(userHash);
+    public ApiMessage createDeck(String deckName) throws Exception {
+
         if(loggedInUser.getDeckByName(deckName) != null){
             return new ApiMessage(ApiMessage.error,"deck with name "+deckName+" already exists");
         }
@@ -118,8 +96,7 @@ public class ProgramController {
         }
     }
 
-    public ApiMessage deleteDeck(String userHash, String deckName) throws Exception {
-        AccountJson loggedInUser = getLoggedInUserByUsername(userHash);
+    public ApiMessage deleteDeck(String deckName) throws Exception {
         DeckJson deck = loggedInUser.getDeckByName(deckName);
 
         if(deck == null){
@@ -135,8 +112,7 @@ public class ProgramController {
         }
     }
 
-    public ApiMessage selectActiveDeck(String userHash, String deckName) throws Exception {
-        AccountJson loggedInUser = getLoggedInUserByUsername(userHash);
+    public ApiMessage selectActiveDeck(String deckName) throws Exception {
         DeckJson deck = loggedInUser.getDeckByName(deckName);
 
         if(deck == null){
@@ -150,8 +126,7 @@ public class ProgramController {
         }
     }
 
-    public ApiMessage addCardToDeck(String userHash, String cardName, String deckName, boolean inSideDeck) throws Exception {
-        AccountJson loggedInUser = getLoggedInUserByUsername(userHash);
+    public ApiMessage addCardToDeck(String cardName, String deckName, boolean inSideDeck) throws Exception {
         DeckJson deck = loggedInUser.getDeckByName(deckName);
 
         if(!loggedInUser.doesHaveThisCard(cardName)){
@@ -184,10 +159,9 @@ public class ProgramController {
         }
     }
 
-    public ApiMessage removeCardFromDeck(String userHash, String cardName, String deckName, boolean fromSideDeck) throws Exception {
+    public ApiMessage removeCardFromDeck(String cardName, String deckName, boolean fromSideDeck) throws Exception {
         //hame ro hazf konim ya yekisho
         //manaye mojoodi chiye
-        AccountJson loggedInUser = getLoggedInUserByUsername(userHash);
         DeckJson deck = loggedInUser.getDeckByName(deckName);
 
         if(deck == null){
@@ -213,14 +187,12 @@ public class ProgramController {
 
     }
 
-    public ApiMessage showAllDeck(String userHash) throws Exception {
-        AccountJson loggedInUser = getLoggedInUserByUsername(userHash);
+    public ApiMessage showAllDeck() throws Exception {
         ShowAllDecksJson ans = new ShowAllDecksJson(loggedInUser);
         return new ApiMessage(ApiMessage.successful,new Gson().toJson(ans));
     }
 
-    public ApiMessage showDeck(String userHash, String deckName, boolean isSideDeck) throws Exception {
-        AccountJson loggedInUser = getLoggedInUserByUsername(userHash);
+    public ApiMessage showDeck(String deckName, boolean isSideDeck) throws Exception {
         DeckJson deck = loggedInUser.getDeckByName(deckName);
 
         if(deck == null){
@@ -238,8 +210,7 @@ public class ProgramController {
         }
     }
 
-    public ApiMessage showPurchasedCards(String userHash) throws Exception {
-        AccountJson loggedInUser = getLoggedInUserByUsername(userHash);
+    public ApiMessage showPurchasedCards() throws Exception {
         ArrayList<CardGeneralInfo> purchaseCards =  new ArrayList<>();
         for (CardJson card : loggedInUser.getPurchasedCards()) {
             if(doesMonsterExistWithThisName(card.getName())){
@@ -256,8 +227,8 @@ public class ProgramController {
         return new ApiMessage(ApiMessage.successful,new Gson().toJson(purchaseCards));
     }
 
-    public ApiMessage buyCard(String userHash, String cardName) throws Exception {
-        AccountJson loggedInUser = getLoggedInUserByUsername(userHash);
+    public ApiMessage buyCard(String cardName) throws Exception {
+
         if(!doesMonsterExistWithThisName(cardName)&&!doesSpellOrTrapExistsWithThisName(cardName)){
             return new ApiMessage(ApiMessage.error,"there is no card with this name.");
         }
@@ -284,8 +255,7 @@ public class ProgramController {
         return new ApiMessage(ApiMessage.successful,"card successfully purchased.");
     }
 
-    public ApiMessage increaseMoney(String userHash, int amount) throws Exception {
-        AccountJson loggedInUser = getLoggedInUserByUsername(userHash);
+    public ApiMessage increaseMoney(int amount) throws Exception {
         loggedInUser.increaseMoney(amount);
         changeUserInfoInDataBase(loggedInUser);
         return new ApiMessage(ApiMessage.successful,null);
@@ -305,58 +275,36 @@ public class ProgramController {
         return new ApiMessage(ApiMessage.successful,new Gson().toJson(ans));
     }
 
-    public ApiMessage getMoney(String userHash) throws Exception {
-        AccountJson loggedInUser = getLoggedInUserByUsername(userHash);
-        return new ApiMessage(ApiMessage.successful,"{\"money\":" + loggedInUser.getMoney() + "}");
-    }
+    public ApiMessage createDuel(String usernamePlayer2, int rounds, GameController gameController) throws Exception {
 
-    public ApiMessage getOpponentsWaiting(String userHash) throws Exception {
-        ArrayList<RequestForPlayGame> answer = new ArrayList<>();
-        for (RequestForPlayGame requestForPlayGame : requestForPlayGames) {
-            if(requestForPlayGame.getWantedOpponentName() != null && requestForPlayGame.getWantedOpponentName().equals(userHash))
-                answer.add(requestForPlayGame);
-        }
-        return new ApiMessage(ApiMessage.successful,new Gson().toJson(answer));
-    }
-
-    public ApiMessage createDuel(String userHash, String usernamePlayer2) throws Exception {
-        JSONObject ans = new JSONObject();
-        AccountJson loggedInUser = getLoggedInUserByUsername(userHash);
         if(!doesUserWithThisUsernameExist(usernamePlayer2)){
-            ans.put("createGame",false);
-            ans.put("detail","there is no player with this username");
-            return new ApiMessage(ApiMessage.error,ans.toString());
+            return new ApiMessage(ApiMessage.error,"there is no player with this username");
         }
 
         AccountJson player2 = getUserInfoByUsername(usernamePlayer2);
         assert player2 != null;
 
         if(loggedInUser.getActiveDeck() == null){
-            ans.put("createGame",false);
-            ans.put("detail",loggedInUser.getUsername()+" has no active deck");
-            return new ApiMessage(ApiMessage.error,ans.toString());
+            return new ApiMessage(ApiMessage.error,loggedInUser.getUsername()+" has no active deck");
         }
 
         if(player2.getActiveDeck() == null){
-            ans.put("createGame",false);
-            ans.put("detail",player2.getUsername()+" has no active deck");
-            return new ApiMessage(ApiMessage.error,ans.toString());
+            return new ApiMessage(ApiMessage.error,player2.getUsername()+" has no active deck");
         }
 
         if(!loggedInUser.isAllowedActiveDeck()){
-            ans.put("createGame",false);
-            ans.put("detail",loggedInUser.getUsername()+"’s deck is invalid");
-            return new ApiMessage(ApiMessage.error,ans.toString());
+            return new ApiMessage(ApiMessage.error,loggedInUser.getUsername()+"’s deck is invalid");
         }
 
         if(!player2.isAllowedActiveDeck()){
-            ans.put("createGame",false);
-            ans.put("detail",player2.getUsername()+"’s deck is invalid");
-            return new ApiMessage(ApiMessage.error,ans.toString());
+            return new ApiMessage(ApiMessage.error,player2.getUsername()+"’s deck is invalid");
         }
 
+        if(rounds != 1 && rounds != 3){
+            return new ApiMessage(ApiMessage.error,"number of rounds is not supported");
+        }
 
-        return gameController.createGame(loggedInUser , player2);
+        return gameController.createGame(loggedInUser , player2 , rounds);
     }
 
     private void getCardGeneralInfoForShowDeck(ShowDeckJson ans, ArrayList<CardJson> deck) throws IOException {
@@ -374,9 +322,7 @@ public class ProgramController {
         }
     }
 
-
-
-    public synchronized void changeUserInfoInDataBase(AccountJson newUserInfo) throws IOException {
+    public void changeUserInfoInDataBase(AccountJson newUserInfo) throws IOException {
         ArrayList<AccountJson> users = getUsersInfo();
         FileWriter fileWriter = new FileWriter(usersInfoPath);
         for(int i = 0 ; i < users.size() ; i++){
@@ -390,7 +336,7 @@ public class ProgramController {
         fileWriter.close();
     }
 
-    private synchronized void addUserInfoToDatabase(String username, String password, String nickname) throws IOException {
+    private void addUserInfoToDatabase(String username, String password, String nickname) throws IOException {
         AccountJson newUser = new AccountJson(username, password, nickname);
         newUser.increaseMoney(100000);//not sure
         ArrayList<AccountJson> users = getUsersInfo();
@@ -458,6 +404,7 @@ public class ProgramController {
             if(spellAndTrap.getName().equals(name))
                 return spellAndTrap;
         }
+        System.out.println();
         return null;
     }
 
@@ -479,86 +426,27 @@ public class ProgramController {
         return null;
     }
 
-    private synchronized ArrayList<MonsterJson> getMonstersInfo() throws IOException {
+    private ArrayList<MonsterJson> getMonstersInfo() throws IOException {
+        System.out.println(Paths.get("."));
         String json = new String(Files.readAllBytes(Paths.get(monstersInfoPath)));
         return new Gson().fromJson(json ,new TypeToken<List<MonsterJson>>(){}.getType());
     }
 
-    private synchronized ArrayList<SpellAndTrapJson> getSpellAndTrapsInfo() throws IOException {
+    private ArrayList<SpellAndTrapJson> getSpellAndTrapsInfo() throws IOException {
         String json = new String(Files.readAllBytes(Paths.get(spellAndTrapsINfoPath)));
         return new Gson().fromJson(json ,new TypeToken<List<SpellAndTrapJson>>(){}.getType());
     }
 
-    private synchronized ArrayList<AccountJson> getUsersInfo() throws IOException {
+    private ArrayList<AccountJson> getUsersInfo() throws IOException {
         String json = new String(Files.readAllBytes(Paths.get(usersInfoPath)));
         return new Gson().fromJson(json ,new TypeToken<List<AccountJson>>(){}.getType());
     }
 
-
-    private synchronized void addLoggedInUser(AccountJson loggedInUser){
-        loggedInUsers.add(loggedInUser);
+    private void setLoggedInUser(AccountJson loggedInUser){
+        this.loggedInUser = loggedInUser;
     }
 
-    private synchronized void deleteLoggedInUser(String username){
-        loggedInUsers.remove(getLoggedInUserByUsername(username));
-    }
-
-    private synchronized AccountJson getLoggedInUserByUsername(String username){
-        for (AccountJson user : loggedInUsers) {
-            if(user.getUsername().equals(username))
-                return user;
-        }
-        return null;
-    }
-
-    public synchronized ApiMessage checkForStartDuel(String userHash, String opponentName) throws Exception {
-        JSONObject ans = new JSONObject();
-        if(opponentName.isEmpty()){
-            for (RequestForPlayGame requestForPlayGame : requestForPlayGames) {
-                if(requestForPlayGame.getWantedOpponentName() == null || requestForPlayGame.getWantedOpponentName().equals(userHash)){
-                    requestForPlayGames.remove(requestForPlayGame);
-                    return createDuel(userHash,requestForPlayGame.getUserWantPlayGame());
-                }
-            }
-            requestForPlayGames.add(new RequestForPlayGame(userHash,null));
-            ans.put("gameCreate",false);
-            System.out.println(ans);
-            return new ApiMessage(ApiMessage.successful,ans.toString());
-        }
-        else{
-            for (RequestForPlayGame requestForPlayGame : requestForPlayGames) {
-                if(requestForPlayGame.getUserWantPlayGame().equals(opponentName) && requestForPlayGame.getWantedOpponentName().equals(userHash)){
-                    requestForPlayGames.remove(requestForPlayGame);
-                    return createDuel(userHash,opponentName);
-                }
-            }
-            requestForPlayGames.add(new RequestForPlayGame(userHash,opponentName));
-            ans.put("gameCreate",false);
-            return new ApiMessage(ApiMessage.successful,ans.toString());
-        }
-    }
-
-    public synchronized ApiMessage attemptToStartDuelWithDefinedUser(String userHash, String opponent) throws Exception {
-        for (RequestForPlayGame requestForPlayGame : requestForPlayGames) {
-            if(requestForPlayGame.getUserWantPlayGame().equals(opponent) && requestForPlayGame.getWantedOpponentName().equals(userHash)){
-                requestForPlayGames.remove(requestForPlayGame);
-                return createDuel(userHash,opponent);
-            }
-        }
-
-        return new ApiMessage(ApiMessage.error,"user cancel its request.");
-    }
-
-    public synchronized ApiMessage deleteGameRequest(String userHash) throws Exception {
-        for (RequestForPlayGame requestForPlayGame : requestForPlayGames) {
-            if(requestForPlayGame.getUserWantPlayGame().equals(userHash)){
-                requestForPlayGames.remove(requestForPlayGame);
-                return new ApiMessage(ApiMessage.successful,"");
-            }
-        }
-        return new ApiMessage(ApiMessage.successful,"");
-    }
-
-
-
+    public ApiMessage getMoney() throws Exception {
+        return new ApiMessage(ApiMessage.successful,"{\"money\":" + loggedInUser.getMoney() + "}");
+    }*/
 }

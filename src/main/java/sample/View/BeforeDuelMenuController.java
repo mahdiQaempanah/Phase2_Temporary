@@ -151,21 +151,22 @@ public class BeforeDuelMenuController {
             }
         });
         mainPane.getChildren().add(cancelButton);
-            checkStillLoading();
-            JSONObject request = new JSONObject().put("command","getIsGameStartWithMe");
-            ApiMessage result = new Gson().fromJson(SocketPackage.getInstance().getResponse(request),ApiMessage.class);
-            JSONObject response = new JSONObject(result.getMessage());
-            if(response.getBoolean("isGameStart")){
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("../../Fxml/GameView.fxml"));
-                Parent root = loader.load();
-                GameViewController controller = (GameViewController) loader.getController();
-                primaryStage.setScene(new Scene(root));
-                primaryStage.show();
-                controller.startGame(response.getInt("gameId"),primaryStage,myMainMenu);
-            }
+        checkStillLoading();
+        JSONObject request = new JSONObject().put("command","getIsGameStartWithMe");
+        ApiMessage result = new Gson().fromJson(SocketPackage.getInstance().getResponse(request),ApiMessage.class);
+        JSONObject response = new JSONObject(result.getMessage());
+        if(response.getBoolean("isGameStart")){
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../../Fxml/GameView.fxml"));
+            Parent root = loader.load();
+            GameViewController controller = (GameViewController) loader.getController();
+            primaryStage.setScene(new Scene(root));
+            primaryStage.show();
+            controller.startGame(response.getInt("gameId"),primaryStage,myMainMenu);
+        }
     }
 
     private void checkStillLoading() {
+        System.out.println("hah");
         new Timeline(new KeyFrame(Duration.millis(200), (ActionEvent event) -> {
             JSONObject request = new JSONObject().put("command","getIsGameStartWithMe");
             ApiMessage result = null;
@@ -175,12 +176,8 @@ public class BeforeDuelMenuController {
                 exception.printStackTrace();
             }
             JSONObject response = new JSONObject(result.getMessage());
-            if(response.getBoolean("isGameStart")){
-                int gameId = response.getInt("gameId");
-
-            }else{
+            if(!response.getBoolean("isGameStart"))
                 checkStillLoading();
-            }
         })).play();
     }
 
@@ -189,17 +186,30 @@ public class BeforeDuelMenuController {
         request.put("command","startGameWithDefinedUser");
         request.put("opponent",userWantPlayGame);
         JSONObject response = new JSONObject( SocketPackage.getInstance().getResponse(request));
+
         if(response.getString("type").equals(ApiMessage.error)){
             apiLog.setText(response.getString("message"));
             apiLog.setTextFill(Color.RED);
-            Thread.sleep(1500);
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../../Fxml/BeforeDuel.fxml"));
+            new Timeline(new KeyFrame(Duration.millis(1500), (ActionEvent event) -> {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("../../Fxml/BeforeDuel.fxml"));
+                    Parent root = loader.load();
+                    BeforeDuelMenuController controller = (BeforeDuelMenuController) loader.getController();
+                    primaryStage.setScene(new Scene(root));
+                    primaryStage.show();
+                    controller.start(myMainMenu,primaryStage);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
+            })).play();
+        }
+        else{
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../../Fxml/GameView.fxml"));
             Parent root = loader.load();
-            BeforeDuelMenuController controller = (BeforeDuelMenuController) loader.getController();
+            GameViewController controller = (GameViewController) loader.getController();
             primaryStage.setScene(new Scene(root));
             primaryStage.show();
-            controller.start(myMainMenu,primaryStage);
+            controller.startGame(new JSONObject(response.getString("message")).getInt("gameId"),primaryStage,myMainMenu);
         }
     }
 

@@ -47,17 +47,19 @@ public class GameViewController {
     public Rectangle blackReq;
 
     public void startGame(int id,Stage stage, MainMenu mainMenu) throws Exception {
+
         blackReq = new Rectangle(0,0,418,1030);
         blackReq.setFill(Color.BLACK);
         this.id = id;
-        this.isActivePlayer = new JSONObject(responseFromApi("command","isActivePlayer").getMessage()).getBoolean("isActivePlayer");
+        this.isActivePlayer = new JSONObject(responseFromApi("command","isActivePlayer","gameId",String.valueOf(id)).getMessage()).getBoolean("isActivePlayer");
         this.myMainMenu = mainMenu;
         this.primaryStage = stage;
+        System.out.println(id);
         board = new BoardComponent(this,mainPane);
         gameLog = new GameLog(gameLogLabel);
         gameStatus = new GameStatus(mainPane,this);
+        System.out.println(isActivePlayer);
         resetBoard();
-
         if(isActivePlayer)
             firstStepForActivePlayer();
         else
@@ -383,6 +385,7 @@ public class GameViewController {
     public ApiMessage responseFromApi(ArrayList<String> keyWords) throws Exception {
         assert keyWords.size()%2 == 0;
         JSONObject message = new JSONObject();
+        message.put("gameId",id);
         for(int i = 0 ; i < keyWords.size() ; i+=2)
             message.put(keyWords.get(i), keyWords.get(i + 1));
         JSONObject jsonAns = new JSONObject(SocketPackage.getInstance().getResponse(message));
@@ -391,6 +394,7 @@ public class GameViewController {
 
     public ApiMessage responseFromApi(String ...keyWords) throws IOException {
         JSONObject message = new JSONObject();
+        message.put("gameId",id);
         for(int i = 0 ; i < keyWords.length ; i+=2)
             message.put(keyWords[i],keyWords[i+1]);
         JSONObject jsonAns = new JSONObject(SocketPackage.getInstance().getResponse(message));

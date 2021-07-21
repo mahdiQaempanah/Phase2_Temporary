@@ -151,35 +151,33 @@ public class BeforeDuelMenuController {
             }
         });
         mainPane.getChildren().add(cancelButton);
-        checkStillLoading();
-        JSONObject request = new JSONObject().put("command","getIsGameStartWithMe");
-        ApiMessage result = new Gson().fromJson(SocketPackage.getInstance().getResponse(request),ApiMessage.class);
-        JSONObject response = new JSONObject(result.getMessage());
-        if(response.getBoolean("isGameStart")){
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../../Fxml/GameView.fxml"));
-            Parent root = loader.load();
-            GameViewController controller = (GameViewController) loader.getController();
-            primaryStage.setScene(new Scene(root));
-            primaryStage.show();
-            controller.startGame(response.getInt("gameId"),primaryStage,myMainMenu);
-        }
+        waitForStartGame();
     }
 
-    private void checkStillLoading() {
-        System.out.println("hah");
-        new Timeline(new KeyFrame(Duration.millis(200), (ActionEvent event) -> {
-            JSONObject request = new JSONObject().put("command","getIsGameStartWithMe");
-            ApiMessage result = null;
+    private void waitForStartGame() throws Exception {
+        new Timeline(new KeyFrame(Duration.millis(1000), (ActionEvent event) -> {
             try {
-                result = new Gson().fromJson(SocketPackage.getInstance().getResponse(request), ApiMessage.class);
-            } catch (IOException exception) {
+                JSONObject request = new JSONObject().put("command","getIsGameStartWithMe");
+                ApiMessage result = new Gson().fromJson(SocketPackage.getInstance().getResponse(request),ApiMessage.class);
+                JSONObject response = new JSONObject(result.getMessage());
+                if(!response.getBoolean("isGameStart"))
+                    waitForStartGame();
+                else{
+                    System.out.println("No");
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("../../Fxml/GameView.fxml"));
+                    Parent root = loader.load();
+                    GameViewController controller = (GameViewController) loader.getController();
+                    primaryStage.setScene(new Scene(root));
+                    primaryStage.show();
+                    controller.startGame(response.getInt("gameId"),primaryStage,myMainMenu);
+                }
+            } catch (Exception exception) {
                 exception.printStackTrace();
             }
-            JSONObject response = new JSONObject(result.getMessage());
-            if(!response.getBoolean("isGameStart"))
-                checkStillLoading();
         })).play();
     }
+
+
 
     private void handleStartGame(String userWantPlayGame) throws Exception {
         JSONObject request = new JSONObject();

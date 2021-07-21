@@ -71,7 +71,9 @@ public class GameViewController {
     }
 
     private void firstStepForInactivePlayer() throws Exception {
+        mainPane.getChildren().remove(cardInfo);
         mainPane.getChildren().add(blackReq);
+        mainPane.getChildren().add(cardInfo);
         reloadBoard();
     }
 
@@ -83,7 +85,7 @@ public class GameViewController {
             return;
         }
         resetBoard();
-        new Timeline(new KeyFrame(Duration.millis(200), (ActionEvent event) -> {
+        new Timeline(new KeyFrame(Duration.millis(1000), (ActionEvent event) -> {
             try {
                 reloadBoard();
             } catch (Exception exception) {

@@ -18,98 +18,76 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.json.JSONObject;
-import sample.Controller.API;
 import sample.Model.ApiMessage;
 import sample.Model.Game.Phase;
 import sample.Model.JsonObject.BoardJson;
 import sample.View.Components.*;
 import sample.View.Graphic.MainMenu;
+import sample.View.Graphic.SocketPackage;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Locale;
 
 public class GameViewController {
     public static final Point2D cardSize = new Point2D(104,120);
     private Stage primaryStage;
     public MainMenu myMainMenu;
-    public API api;
     public AnchorPane mainPane;
-
     public BoardComponent board;
     public GameStatus gameStatus;
     public Button pauseButton;
-
     public Label gameLogLabel;
     public GameLog gameLog;
     public Label phaseLabel;
     public Rectangle cardInfo;
+    public int id;
+    public boolean isActivePlayer;
+    public Rectangle blackReq;
 
-    public void startGame(Stage stage, ApiMessage response, API api, MainMenu mainMenu, Stage primaryStage){
+    public void startGame(int id,Stage stage, ApiMessage response, MainMenu mainMenu, Stage primaryStage) throws Exception {
+        blackReq = new Rectangle(0,0,418,1030);
+        blackReq.setFill(Color.BLACK);
+        this.id = id;
+        this.isActivePlayer = new JSONObject(responseFromApi("command","isActivePlayer").getMessage()).getBoolean("isActivePlayer");
         this.myMainMenu = mainMenu;
         this.primaryStage = primaryStage;
-        this.api = api;
         board = new BoardComponent(this,mainPane);
         gameLog = new GameLog(gameLogLabel);
         gameStatus = new GameStatus(mainPane,this);
-        throwingCoin(stage,response);
+        resetBoard();
+
+        if(isActivePlayer)
+            firstStepForActivePlayer();
+        else
+            firstStepForInactivePlayer();
     }
 
-    private void throwingCoin(Stage stage, ApiMessage response){
-        String poshtAddress = getClass().getResource("../../Image/coinPosht.png").toExternalForm();
-        String rooAddress = getClass().getResource("../../Image/coinRoo.png").toExternalForm();
-        JSONObject messageOfResponse = new JSONObject(response.getMessage());
-        boolean isPlayer2Turn = messageOfResponse.getBoolean("firstTurn");
-
-        Rectangle coin = new Rectangle();
-        coin.setWidth(120);coin.setHeight(120);
-        coin.setLayoutX(150);coin.setLayoutY(400);
-        coin.setFill(new ImagePattern(new Image(poshtAddress)));
-
-        int numberOfCoinRotation = 16;
-        if(isPlayer2Turn)
-            numberOfCoinRotation++;
-        boolean posthInGround = true;
-        mainPane.getChildren().add(coin);
-        spinningCoin(coin,numberOfCoinRotation,posthInGround,poshtAddress,rooAddress);
+    private void firstStepForActivePlayer() throws Exception {
+        handleFirstPhase();
     }
 
-    private void spinningCoin(Rectangle coin, int numberOfCoinRotation, boolean posthInGround, String poshtAddress, String rooAddress) {
-        if(numberOfCoinRotation == 0){
-            Label result = new Label();
-            result.setLayoutX(110);result.setLayoutY(534);
+    private void firstStepForInactivePlayer() throws Exception {
+        mainPane.getChildren().add(blackReq);
+        reloadBoard();
+    }
 
-            String labelText = "Player1 start the game.";
-            if(!posthInGround)
-            result.setText("Player2 start the game.");
-
-            result.setText(labelText);
-            result.setTextFill(Color.WHITE);
-            result.setStyle("-fx-font-size:20");
-            mainPane.getChildren().add(result);
-
-            Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(3), (ActionEvent event) -> {
-                mainPane.getChildren().remove(result);
-                mainPane.getChildren().remove(coin);
-                try {
-                    resetBoard();
-                    handleFirstPhase();
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
-            }));
-            timeline.play();
+    private void reloadBoard() throws Exception {
+        if(new JSONObject(responseFromApi("command","isActivePlayer").getMessage()).getBoolean("isActivePlayer")){
+            isActivePlayer = true;
+            mainPane.getChildren().remove(blackReq);
+            firstStepForActivePlayer();
             return;
         }
-        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(200), (ActionEvent event) -> {
-            if(posthInGround)
-                coin.setFill(new ImagePattern(new Image(rooAddress)));
-            else
-                coin.setFill(new ImagePattern(new Image(poshtAddress)));
-            spinningCoin(coin,numberOfCoinRotation-1,!posthInGround,poshtAddress,rooAddress);
-        }));
-        timeline.play();
+        resetBoard();
+        new Timeline(new KeyFrame(Duration.millis(200), (ActionEvent event) -> {
+            try {
+                reloadBoard();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        })).play();
     }
 
     private void handleFirstPhase() throws Exception {
@@ -148,8 +126,10 @@ public class GameViewController {
         phaseLabel.setText("Phase: " + response.getMessage().substring(1,response.getMessage().length()-1).replace("_"," ").toLowerCase().toLowerCase());
         Phase phase = new Gson().fromJson(response.getMessage(),Phase.class);
         if(phase == Phase.DRAW_PHASE){
-            resetBoard();
-            handleFirstPhase();
+            isActivePlayer = false;
+            firstStepForInactivePlayer();
+            // resetBoard();
+           // handleFirstPhase();
         }
     }
 
@@ -405,7 +385,15 @@ public class GameViewController {
         JSONObject message = new JSONObject();
         for(int i = 0 ; i < keyWords.size() ; i+=2)
             message.put(keyWords.get(i), keyWords.get(i + 1));
-        JSONObject jsonAns = api.run(message);
+        JSONObject jsonAns = new JSONObject(SocketPackage.getInstance().getResponse(message));
+        return new Gson().fromJson(String.valueOf(jsonAns),ApiMessage.class);
+    }
+
+    public ApiMessage responseFromApi(String ...keyWords) throws IOException {
+        JSONObject message = new JSONObject();
+        for(int i = 0 ; i < keyWords.length ; i+=2)
+            message.put(keyWords[i],keyWords[i+1]);
+        JSONObject jsonAns = new JSONObject(SocketPackage.getInstance().getResponse(message));
         return new Gson().fromJson(String.valueOf(jsonAns),ApiMessage.class);
     }
 }

@@ -8,7 +8,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -21,15 +20,12 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import sample.Controller.API;
+import org.json.JSONObject;
+import sample.View.BeforeDuelMenuController;
 import sample.View.DeckMenuController;
-import sample.View.GameViewController;
 import sample.View.ShopMenuController;
 
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
 
 public class MainMenu extends Application {
     static private Stage primaryStage;
@@ -40,18 +36,11 @@ public class MainMenu extends Application {
     public HBox optionsBox = new HBox();
     public String username;
     public WelcomeMenu myWelcomeMenu;
-    public API api;
 
 
-    //  public CardMenu cardMenu=new CardMenu();
-    //  public ProfileMenu profileMenu=new ProfileMenu();
-    //  public ScoreBoardMenu scoreBoardMenu=new ScoreBoardMenu();
-    //  public ShopMenu shopMenu=new ShopMenu();
-
-    public MainMenu(String username, String nickname, API api) {
+    public MainMenu(String username, String nickname) {
         this.username = username;
         this.nickname = nickname;
-        this.api = api;
     }
 
     @Override
@@ -143,7 +132,12 @@ public class MainMenu extends Application {
             @Override
             public void handle(MouseEvent event) {
                 try {
-                    new BeforeDuelMenu(me,api,primaryStage).start(primaryStage);
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("../../../Fxml/BeforeDuel.fxml"));
+                    Parent root = loader.load();
+                    BeforeDuelMenuController controller = (BeforeDuelMenuController) loader.getController();
+                    primaryStage.setScene(new Scene(root));
+                    primaryStage.show();
+                    controller.start(me,primaryStage);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
@@ -166,7 +160,7 @@ public class MainMenu extends Application {
             @Override
             public void handle(MouseEvent event) {
                 try {
-                    ProfileMenu profileMenu = new ProfileMenu(api,me);
+                    ProfileMenu profileMenu = new ProfileMenu(me);
                     profileMenu.start(primaryStage);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -198,7 +192,7 @@ public class MainMenu extends Application {
                     DeckMenuController controller = (DeckMenuController) loader.getController();
                     primaryStage.setScene(new Scene(root));
                     primaryStage.show();
-                    controller.start(primaryStage,me,api);
+                    controller.start(primaryStage,me);
                 } catch (Exception exception) {
                     exception.printStackTrace();
                 }
@@ -221,7 +215,7 @@ public class MainMenu extends Application {
             @Override
             public void handle(MouseEvent event) {
                 try {
-                    ScoreBoardMenu scoreBoardMenu = new ScoreBoardMenu(api,me);
+                    ScoreBoardMenu scoreBoardMenu = new ScoreBoardMenu(me);
                     scoreBoardMenu.start(primaryStage);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -250,7 +244,7 @@ public class MainMenu extends Application {
                     ShopMenuController controller = (ShopMenuController) loader.getController();
                     primaryStage.setScene(new Scene(root));
                     primaryStage.show();
-                    controller.start(primaryStage,me,api);
+                    controller.start(primaryStage,me);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -263,6 +257,8 @@ public class MainMenu extends Application {
             @Override
             public void handle(ActionEvent event) {
                 try {
+                    JSONObject request = new JSONObject().put("command","logout");
+                    SocketPackage.getInstance().getResponse(request);
                     myWelcomeMenu.start(primaryStage);
                 } catch (Exception e) {
                     e.printStackTrace();

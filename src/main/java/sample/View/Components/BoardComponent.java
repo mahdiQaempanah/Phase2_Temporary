@@ -3,7 +3,6 @@ package sample.View.Components;
 
 import javafx.scene.layout.AnchorPane;
 import sample.Model.JsonObject.BoardJson;
-import sample.View.Components.FieldComponent;
 import sample.View.GameViewController;
 
 public class BoardComponent {

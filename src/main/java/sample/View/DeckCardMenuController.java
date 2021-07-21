@@ -15,11 +15,11 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.json.JSONObject;
-import sample.Controller.API;
 import sample.Model.ApiMessage;
 import sample.Model.JsonObject.CardGeneralInfo;
 import sample.Model.JsonObject.ShowDeckJson;
 import sample.View.Graphic.MainMenu;
+import sample.View.Graphic.SocketPackage;
 
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class DeckCardMenuController {
     public Label apiLog;
     private Stage primaryStage;
     public MainMenu myMainMenu;
-    public API api;
+
 
     public ShowDeckJson mainDeck;
     ArrayList<Rectangle> mainCards;
@@ -44,11 +44,10 @@ public class DeckCardMenuController {
     public ShowDeckJson sideDeck;
     ArrayList<Rectangle> sideCards;
 
-    public void start(String deckName, Stage primaryStage, MainMenu myMainMenu, API api) throws Exception {
+    public void start(String deckName, Stage primaryStage, MainMenu myMainMenu) throws Exception {
         this.deckName = deckName;
         this.primaryStage = primaryStage;
         this.myMainMenu = myMainMenu;
-        this.api = api;
         buildCards();
     }
 
@@ -146,7 +145,7 @@ public class DeckCardMenuController {
         JSONObject message = new JSONObject();
         for(int i = 0 ; i < keyWords.size() ; i+=2)
             message.put(keyWords.get(i), keyWords.get(i + 1));
-        JSONObject jsonAns = api.run(message);
+        JSONObject jsonAns = new JSONObject(SocketPackage.getInstance().getResponse(message));
         return new Gson().fromJson(String.valueOf(jsonAns),ApiMessage.class);
     }
 

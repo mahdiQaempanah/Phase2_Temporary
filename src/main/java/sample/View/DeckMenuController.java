@@ -18,14 +18,13 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.json.JSONObject;
-import sample.Controller.API;
 import sample.Model.ApiMessage;
 import sample.Model.JsonObject.DeckGeneralInfo;
 import sample.Model.JsonObject.ShowAllDecksJson;
 import sample.View.Components.DeckComponent;
 import sample.View.Graphic.MainMenu;
+import sample.View.Graphic.SocketPackage;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -35,14 +34,12 @@ public class DeckMenuController {
     private int deckInRow = 5;
     private Stage primaryStage;
     public MainMenu myMainMenu;
-    public API api;
     public DeckComponent selectedComponent;
 
 
-    public void start(Stage stage, MainMenu mainMenu, API api) throws Exception {
+    public void start(Stage stage, MainMenu mainMenu) throws Exception {
         this.primaryStage = stage;
         this.myMainMenu = mainMenu;
-        this.api = api;
         addDecks();
     }
 
@@ -77,7 +74,7 @@ public class DeckMenuController {
         DeckCardMenuController controller = (DeckCardMenuController) loader.getController();
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
-        controller.start(selectedComponent.getDeckName(),primaryStage,myMainMenu,api);
+        controller.start(selectedComponent.getDeckName(),primaryStage,myMainMenu);
     }
 
     public void deleteDeckHandle(ActionEvent actionEvent) throws Exception {
@@ -197,7 +194,7 @@ public class DeckMenuController {
         JSONObject message = new JSONObject();
         for(int i = 0 ; i < keyWords.size() ; i+=2)
             message.put(keyWords.get(i), keyWords.get(i + 1));
-        JSONObject jsonAns = api.run(message);
+        JSONObject jsonAns = new JSONObject(SocketPackage.getInstance().getResponse(message));
         return new Gson().fromJson(String.valueOf(jsonAns),ApiMessage.class);
     }
 

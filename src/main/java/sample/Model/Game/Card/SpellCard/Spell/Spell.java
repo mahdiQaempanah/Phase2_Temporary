@@ -1,6 +1,6 @@
 package sample.Model.Game.Card.SpellCard.Spell;
 
-import sample.Model.Game.*;
+import sample.Model.Game.Game;
 
 public interface Spell {
     public void activate(Game game);

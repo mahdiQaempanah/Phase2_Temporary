@@ -1,4 +1,4 @@
-package sample.Controller;
+package sample.Server.Controller;
 
 import sample.Model.ApiMessage;
 import sample.Model.Game.Card.Card;
@@ -14,14 +14,13 @@ import sample.Model.Game.CardAddress;
 import sample.Model.Game.Game;
 import sample.Model.Game.Phase;
 import sample.Model.Game.Player;
-import sample.Model.JsonObject.*;
 import com.google.gson.Gson;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 public class GameController{
-    private Game game ;
+/*    private Game game ;
     private ProgramController programController;
 
     public GameController(ProgramController programController){
@@ -404,5 +403,5 @@ public class GameController{
         return arrayList;
     }
 
-
+*/
 }

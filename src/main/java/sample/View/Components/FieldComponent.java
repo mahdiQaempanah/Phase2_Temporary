@@ -10,7 +10,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -19,14 +18,12 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
-import netscape.javascript.JSObject;
 import org.json.JSONObject;
 import sample.Model.ApiMessage;
 import sample.Model.Game.Card.MonsterCard.Mode;
 import sample.Model.Game.Card.Status;
 import sample.Model.JsonObject.*;
 import sample.View.GameViewController;
-import sun.net.www.content.text.Generic;
 
 import java.util.*;
 
@@ -42,6 +39,7 @@ public class FieldComponent {
     private Label graveYardSize;
     private Label deckZoneSize;
     private boolean isActivePlayer;
+
 
     public FieldComponent(GameViewController controller,AnchorPane mainPane,boolean isActivePlayer){
         this.myController = controller;
@@ -121,110 +119,109 @@ public class FieldComponent {
         }
     }
 
-    private Rectangle addCardToPane(String cardName,Point2D coordinates){
-        Rectangle card = new Rectangle();
-        card.setWidth(cardSize.getX());
-        card.setHeight(cardSize.getY());
-        card.setLayoutX(coordinates.getX());
-        card.setLayoutY(coordinates.getY());
-        card.setFill(new ImagePattern(new Image(myController.getCardPictureAddress(cardName))));
-        activateCard(card);
-        mainPane.getChildren().add(card);
-        return card;
-    }
-
-    private Rectangle addHorizontalCardToPane(String cardName, Point2D coordinates) {
-        System.out.println(cardName);
-        Rectangle card = new Rectangle();
-        card.setWidth(80);
-        card.setHeight(156);
-        card.setLayoutX(coordinates.getX()-24+156);
-        card.setLayoutY(coordinates.getY()+18);
-        card.setFill(new ImagePattern(new Image(myController.getCardPictureAddress(cardName))));
-        activateCard(card);
-        Rotate rotate = new Rotate();
-        rotate.setAngle(90);
-        card.getTransforms().addAll(rotate);
-        mainPane.getChildren().add(card);
-        return card;
-    }
-
     private void clickCard(Rectangle card, MouseEvent event) throws Exception {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-        if(!isActivePlayer && hand.contains(card)){
-            myController.showNewGameLog(Color.INDIANRED,"you cant select opponent hands card.",3000);
-            return;
-        }
+        if(myController.isActivePlayer){
+            if(!isActivePlayer && hand.contains(card)){
+                myController.showNewGameLog(Color.RED,"you cant select opponent hands card.",3000);
+                return;
+            }
 
-        switch (myController.gameStatus.getGameMode()) {
-            case NONE:
-                selectCard(card,event);
-                break;
-            case SELECTED_CARD:
-                myController.showNewGameLog(Color.RED,"you already select card.", 2000);
-                break;
-            case CANT_SELECT_CARD:
-                break;
-            case ATTACK_MODE:
-                attemptToAttack(card);
-                break;
-            case SET_MONSTER_MODE:
-            case SUMMON_MONSTER_MODE:
-                if(!isActivePlayer || !Arrays.asList(monsterZone).contains(card))
+            switch (myController.gameStatus.getGameMode()) {
+                case NONE:
+                    selectCard(card,event);
                     break;
-                disableCard(card);
-                card.setStyle("-fx-effect: dropshadow(three-pass-box,  #c80000, 50, 0.6, 0, 0)");
-                for (Rectangle tribute : myController.gameStatus.getTributes()) {
-                    if(tribute == null){
-                        tribute = card;
+                case SELECTED_CARD:
+                    myController.showNewGameLog(Color.RED,"you already select card.", 2000);
+                    break;
+                case CANT_SELECT_CARD:
+                    break;
+                case ATTACK_MODE:
+                    attemptToAttack(card);
+                    break;
+                case SET_MONSTER_MODE:
+                case SUMMON_MONSTER_MODE:
+                    if(!isActivePlayer || !Arrays.asList(monsterZone).contains(card))
                         break;
+                    disableCard(card);
+                    card.setStyle("-fx-effect: dropshadow(three-pass-box,  #c80000, 50, 0.6, 0, 0)");
+                    for (Rectangle tribute : myController.gameStatus.getTributes()) {
+                        if(tribute == null){
+                            tribute = card;
+                            break;
+                        }
                     }
-                }
-                if(!myController.gameStatus.getTributes().contains(null)){
-                    if(myController.gameStatus.getGameMode() == GameMode.SUMMON_MONSTER_MODE)
-                        myController.summonSelectedCard(false);
-                    else
-                        myController.setMonsterSelectedCard();
-                }
+                    if(!myController.gameStatus.getTributes().contains(null)){
+                        if(myController.gameStatus.getGameMode() == GameMode.SUMMON_MONSTER_MODE)
+                            myController.summonSelectedCard(false);
+                        else
+                            myController.setMonsterSelectedCard();
+                    }
 
-                break;
+                    break;
 
+            }
         }
+        else{
+            if(isActivePlayer && hand.contains(card)){
+                myController.showNewGameLog(Color.RED,"you cant select opponent hands card.",3000);
+                return;
+            }
 
+            switch (myController.gameStatus.getGameMode()) {
+                case NONE:
+                    selectCard(card,event);
+                    break;
+                case SELECTED_CARD:
+                    myController.showNewGameLog(Color.RED,"you already select card.", 2000);
+                    break;
+                case CANT_SELECT_CARD:
+                    break;
+            }
+        }
     }
 
     private void selectCard(Rectangle card, MouseEvent event) throws Exception {
-        ArrayList<String> keyWords = new ArrayList<>();
-        keyWords.add("command");keyWords.add("selectCard");
-        String zone = "";
-        int id = 0;
+        if(myController.isActivePlayer){
+            ArrayList<String> keyWords = new ArrayList<>();
+            keyWords.add("command");keyWords.add("selectCard");
+            String zone = "";
+            int id = 0;
 
-        if((id = getId(hand,card)) != -1)
-            zone = "hand_zone";
+            if((id = getId(hand,card)) != -1)
+                zone = "hand_zone";
 
-        else if((id = getId(Arrays.asList(monsterZone),card)) != -1)
-            zone = "monster_zone";
+            else if((id = getId(Arrays.asList(monsterZone),card)) != -1)
+                zone = "monster_zone";
 
-        else if((id = getId(Arrays.asList(spellZone),card)) != -1)
-            zone = "spell_zone";
+            else if((id = getId(Arrays.asList(spellZone),card)) != -1)
+                zone = "spell_zone";
 
-        else if(fieldZone == card)
-            zone = "field_zone";
+            else if(fieldZone == card)
+                zone = "field_zone";
 
-        keyWords.add("zone");keyWords.add(zone);
-        keyWords.add("id");keyWords.add(String.valueOf(id));
-        keyWords.add("isActivePlayer");keyWords.add(String.valueOf(isActivePlayer));
-        ApiMessage response = myController.responseFromApi(keyWords);
-        if(response.getType().equals(ApiMessage.error)){
-            myController.showNewGameLog(Color.RED,response.getMessage(),3000);
+            keyWords.add("zone");keyWords.add(zone);
+            keyWords.add("id");keyWords.add(String.valueOf(id));
+            keyWords.add("isActivePlayer");keyWords.add(String.valueOf(isActivePlayer));
+            ApiMessage response = myController.responseFromApi(keyWords);
+            if(response.getType().equals(ApiMessage.error)){
+                myController.showNewGameLog(Color.RED,response.getMessage(),3000);
+            }else{
+                myController.showNewGameLog(Color.DARKGREEN,"card selected.",3000);
+                myController.gameStatus.setSelectedCard(card);
+                myController.gameStatus.setGameMode(GameMode.SELECTED_CARD);
+                disableCard(card);
+                card.setStyle("-fx-effect: dropshadow(three-pass-box,  #7216cb, 50, 0.6, 0, 0)");
+                showCardInfo((String) new JSONObject(response.getMessage()).get("cardName"));
+            }
         }else{
             myController.showNewGameLog(Color.DARKGREEN,"card selected.",3000);
             myController.gameStatus.setSelectedCard(card);
             myController.gameStatus.setGameMode(GameMode.SELECTED_CARD);
             disableCard(card);
             card.setStyle("-fx-effect: dropshadow(three-pass-box,  #7216cb, 50, 0.6, 0, 0)");
-            showCardInfo((String) new JSONObject(response.getMessage()).get("cardName"));
+            showCardInfo((ImagePattern) card.getFill());
         }
     }
 
@@ -261,6 +258,10 @@ public class FieldComponent {
     private void showCardInfo(String cardName) {
         myController.cardInfo.setFill(new ImagePattern(new Image(myController.getCardPictureAddress(cardName))));
         //Todo: fix this
+    }
+
+    private void showCardInfo(ImagePattern imagePattern){
+        myController.cardInfo.setFill(imagePattern);
     }
 
     public void activateCard(Rectangle card){
@@ -317,22 +318,43 @@ public class FieldComponent {
 
 
     public void build(FieldJson field) {
-        if(isActivePlayer){
-            buildMonsterZone(field.getMonsterZone(),ActivePlayerCardsCoordinates.monsterZone);
-            buildSpellZone(field.getSpellZone(),ActivePlayerCardsCoordinates.spellZone);
-            buildGraveYard(field.getGraveyardSize(),ActivePlayerCardsCoordinates.graveYard);
-            buildDeckZone(field.getDeckSize(),ActivePlayerCardsCoordinates.deckZone);
-            buildUserInfo(field.getNickName(),field.getLife(),ActivePlayerCardsCoordinates.userInfo);
-            buildFieldZone(field.getFieldZone(),ActivePlayerCardsCoordinates.fieldZone);
-            buildHand(field.getHand());
-        }else{
-            buildMonsterZone(field.getMonsterZone(),InactivePlayerCardsCoordinates.monsterZone);
-            buildSpellZone(field.getSpellZone(),InactivePlayerCardsCoordinates.spellZone);
-            buildGraveYard(field.getGraveyardSize(),InactivePlayerCardsCoordinates.graveYard);
-            buildDeckZone(field.getDeckSize(),InactivePlayerCardsCoordinates.deckZone);
-            buildUserInfo(field.getNickName(),field.getLife(),InactivePlayerCardsCoordinates.userInfo);
-            buildFieldZone(field.getFieldZone(),InactivePlayerCardsCoordinates.fieldZone);
-            buildHand(field.getHand());
+        if(myController.isActivePlayer){
+            if(isActivePlayer){
+                buildMonsterZone(field.getMonsterZone(),ActivePlayerCardsCoordinates.monsterZone);
+                buildSpellZone(field.getSpellZone(),ActivePlayerCardsCoordinates.spellZone);
+                buildGraveYard(field.getGraveyardSize(),ActivePlayerCardsCoordinates.graveYard);
+                buildDeckZone(field.getDeckSize(),ActivePlayerCardsCoordinates.deckZone);
+                buildUserInfo(field.getNickName(),field.getLife(),ActivePlayerCardsCoordinates.userInfo);
+                buildFieldZone(field.getFieldZone(),ActivePlayerCardsCoordinates.fieldZone);
+                buildHand(field.getHand());
+            }else{
+                buildMonsterZone(field.getMonsterZone(),InactivePlayerCardsCoordinates.monsterZone);
+                buildSpellZone(field.getSpellZone(),InactivePlayerCardsCoordinates.spellZone);
+                buildGraveYard(field.getGraveyardSize(),InactivePlayerCardsCoordinates.graveYard);
+                buildDeckZone(field.getDeckSize(),InactivePlayerCardsCoordinates.deckZone);
+                buildUserInfo(field.getNickName(),field.getLife(),InactivePlayerCardsCoordinates.userInfo);
+                buildFieldZone(field.getFieldZone(),InactivePlayerCardsCoordinates.fieldZone);
+                buildHand(field.getHand());
+            }
+        }
+        else{
+            if(isActivePlayer){
+                buildMonsterZone(field.getMonsterZone(),InactivePlayerCardsCoordinates.monsterZone);
+                buildSpellZone(field.getSpellZone(),InactivePlayerCardsCoordinates.spellZone);
+                buildGraveYard(field.getGraveyardSize(),InactivePlayerCardsCoordinates.graveYard);
+                buildDeckZone(field.getDeckSize(),InactivePlayerCardsCoordinates.deckZone);
+                buildUserInfo(field.getNickName(),field.getLife(),InactivePlayerCardsCoordinates.userInfo);
+                buildFieldZone(field.getFieldZone(),InactivePlayerCardsCoordinates.fieldZone);
+                buildHand(field.getHand());
+            }else{
+                buildMonsterZone(field.getMonsterZone(),ActivePlayerCardsCoordinates.monsterZone);
+                buildSpellZone(field.getSpellZone(),ActivePlayerCardsCoordinates.spellZone);
+                buildGraveYard(field.getGraveyardSize(),ActivePlayerCardsCoordinates.graveYard);
+                buildDeckZone(field.getDeckSize(),ActivePlayerCardsCoordinates.deckZone);
+                buildUserInfo(field.getNickName(),field.getLife(),ActivePlayerCardsCoordinates.userInfo);
+                buildFieldZone(field.getFieldZone(),ActivePlayerCardsCoordinates.fieldZone);
+                buildHand(field.getHand());
+            }
         }
     }
 
@@ -458,15 +480,56 @@ public class FieldComponent {
         }
         this.hand.clear();
 
-        if(isActivePlayer){
-            for(int i = 0 ; i < hand.size() ; i++)
-                this.hand.add(addCardToPane(hand.get(i).getName(),new Point2D(ActivePlayerCardsCoordinates.startHand.getX()+i*(cardSize.getX()*0.66),
-                        ActivePlayerCardsCoordinates.startHand.getY())));
-        }else{
-            for(int i = 0 ; i < hand.size() ; i++)
-                this.hand.add(addCardToPane("CardToBack",new Point2D(InactivePlayerCardsCoordinates.startHand.getX()+i*(cardSize.getX()*0.66),
-                        InactivePlayerCardsCoordinates.startHand.getY())));
+        if(myController.isActivePlayer){
+            if(isActivePlayer){
+                for(int i = 0 ; i < hand.size() ; i++)
+                    this.hand.add(addCardToPane(hand.get(i).getName(),new Point2D(ActivePlayerCardsCoordinates.startHand.getX()+i*(cardSize.getX()*0.66),
+                            ActivePlayerCardsCoordinates.startHand.getY())));
+            }else{
+                for(int i = 0 ; i < hand.size() ; i++)
+                    this.hand.add(addCardToPane("CardToBack",new Point2D(InactivePlayerCardsCoordinates.startHand.getX()+i*(cardSize.getX()*0.66),
+                            InactivePlayerCardsCoordinates.startHand.getY())));
+            }
         }
+        else{
+            if(isActivePlayer){
+                for(int i = 0 ; i < hand.size() ; i++)
+                    this.hand.add(addCardToPane("CardToBack",new Point2D(InactivePlayerCardsCoordinates.startHand.getX()+i*(cardSize.getX()*0.66),
+                        InactivePlayerCardsCoordinates.startHand.getY())));
+            }else{
+                for(int i = 0 ; i < hand.size() ; i++)
+                    this.hand.add(addCardToPane(hand.get(i).getName(),new Point2D(ActivePlayerCardsCoordinates.startHand.getX()+i*(cardSize.getX()*0.66),
+                            ActivePlayerCardsCoordinates.startHand.getY())));
+            }
+        }
+    }
+
+    private Rectangle addCardToPane(String cardName,Point2D coordinates){
+        Rectangle card = new Rectangle();
+        card.setWidth(cardSize.getX());
+        card.setHeight(cardSize.getY());
+        card.setLayoutX(coordinates.getX());
+        card.setLayoutY(coordinates.getY());
+        card.setFill(new ImagePattern(new Image(myController.getCardPictureAddress(cardName))));
+        activateCard(card);
+        mainPane.getChildren().add(card);
+        return card;
+    }
+
+    private Rectangle addHorizontalCardToPane(String cardName, Point2D coordinates) {
+        System.out.println(cardName);
+        Rectangle card = new Rectangle();
+        card.setWidth(80);
+        card.setHeight(156);
+        card.setLayoutX(coordinates.getX()-24+156);
+        card.setLayoutY(coordinates.getY()+18);
+        card.setFill(new ImagePattern(new Image(myController.getCardPictureAddress(cardName))));
+        activateCard(card);
+        Rotate rotate = new Rotate();
+        rotate.setAngle(90);
+        card.getTransforms().addAll(rotate);
+        mainPane.getChildren().add(card);
+        return card;
     }
 
     public static Point2D getCardSize() {

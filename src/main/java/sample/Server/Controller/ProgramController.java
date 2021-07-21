@@ -1,9 +1,6 @@
-package sample.Controller;
+package sample.Server.Controller;
 
-import sample.Model.Account;
 import sample.Model.ApiMessage;
-import sample.Model.Game.Player;
-import sample.Model.JsonObject.*;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -16,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProgramController {
-    private final static String usersInfoPath = "target\\classes\\Database\\UsersInfo.txt";
+  /*  private final static String usersInfoPath = "target\\classes\\Database\\UsersInfo.txt";
     private final static String monstersInfoPath = "target\\classes\\Database\\MonstersInfo.txt";
     private final static String spellAndTrapsINfoPath = "target\\classes\\Database\\Spell&TrapsInfo.txt";
     private AccountJson loggedInUser ;
@@ -463,5 +460,5 @@ public class ProgramController {
 
     public ApiMessage getMoney() throws Exception {
         return new ApiMessage(ApiMessage.successful,"{\"money\":" + loggedInUser.getMoney() + "}");
-    }
+    }*/
 }

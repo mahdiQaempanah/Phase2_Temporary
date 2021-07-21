@@ -16,11 +16,9 @@ import javafx.stage.Popup;
 import javafx.stage.PopupBuilder;
 import javafx.stage.Stage;
 import org.json.JSONObject;
-import sample.Controller.API;
 
 
-import java.io.FileInputStream;
-import java.io.InputStream;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,10 +29,8 @@ public class ProfileMenu extends Application {
     MainMenu myMenu;
     public JSONObject request_JSON = new JSONObject();
     public JSONObject response;
-    API request;
 
-    public ProfileMenu(API api,MainMenu mainMenu){
-        request = api;
+    public ProfileMenu(MainMenu mainMenu){
         this.myMenu = mainMenu;
     }
 
@@ -264,10 +260,6 @@ public class ProfileMenu extends Application {
 
         root.setBottom(backbutton);
         BorderPane.setAlignment(backbutton,Pos.CENTER);
-
-
-
-
     }
 
     public static Matcher commandMatch(String command, String regex) {
@@ -283,7 +275,7 @@ public class ProfileMenu extends Application {
             request_JSON.put(args[i], args[i + 1]);
         }
 
-        JSONObject response = request.run(request_JSON);
+        JSONObject response = new JSONObject(SocketPackage.getInstance().getResponse(request_JSON));
         request_JSON=new JSONObject();
         return response;
     }

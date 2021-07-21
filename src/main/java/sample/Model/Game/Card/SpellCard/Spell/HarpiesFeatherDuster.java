@@ -1,6 +1,6 @@
 package sample.Model.Game.Card.SpellCard.Spell;
 
-import sample.Model.Game.*;
+import sample.Model.Game.Game;
 
 public class HarpiesFeatherDuster implements Spell{
     boolean wasActivated = false;

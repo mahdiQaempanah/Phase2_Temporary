@@ -16,28 +16,21 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.json.JSONObject;
-import sample.Controller.API;
 import sample.Model.JsonObject.ScoreboardInfo;
 
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
 
 public class ScoreBoardMenu extends Application {
-    private API request;
-
     private String username;
     public BorderPane root = new BorderPane();
-    //MainMenu mainMenu;
     public JSONObject request_JSON = new JSONObject();
     public JSONObject response;
     private MainMenu myMenu;
 
-    public ScoreBoardMenu(API request, MainMenu myMenu) {
-        this.request = request;
+    public ScoreBoardMenu(MainMenu myMenu) {
         this.myMenu = myMenu;
     }
 
@@ -144,7 +137,7 @@ public class ScoreBoardMenu extends Application {
             request_JSON.put(args[i], args[i + 1]);
         }
 
-        JSONObject response = request.run(request_JSON);
+        JSONObject response = new JSONObject(SocketPackage.getInstance().getResponse(request_JSON));
         request_JSON = new JSONObject();
         return response;
     }

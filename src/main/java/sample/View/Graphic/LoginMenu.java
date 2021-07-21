@@ -21,18 +21,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.json.JSONObject;
-import sample.Controller.API;
 
 //
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LoginMenu extends Application {
     static private Stage primaryStage;
-    API request = new API();
     public Scanner scanner = new Scanner(System.in);
     public String command;
     public JSONObject request_JSON = new JSONObject();
@@ -45,9 +41,7 @@ public class LoginMenu extends Application {
         this.myWelcomeMenu = welcomeMenu;
     }
 
-    public LoginMenu(){
-
-    }
+    public LoginMenu(){ }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -159,7 +153,7 @@ public class LoginMenu extends Application {
 
                 if (!response.get("type").toString().equals("error") && (!userText.getText().isEmpty()) && (!passtext.getText().isEmpty())) {
                     onTMessaeg.setText(response.get("message").toString());
-                    mainMenu = new MainMenu(userText.getText(), nickText.getText(),request);
+                    mainMenu = new MainMenu(userText.getText(), nickText.getText());
                     mainMenu.setPriorMenu(myWelcomeMenu);
                     try {
                         mainMenu.start(primaryStage);
@@ -241,7 +235,7 @@ public class LoginMenu extends Application {
             request_JSON.put(args[i], args[i + 1]);
         }
 
-        JSONObject response = request.run(request_JSON);
+        JSONObject response = new JSONObject(SocketPackage.getInstance().getResponse(request_JSON));
         request_JSON = new JSONObject();
         return response;
     }

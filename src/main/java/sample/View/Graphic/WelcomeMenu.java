@@ -22,6 +22,7 @@ public class WelcomeMenu extends Application {
     private Button button = new Button("start");
     private LoginMenu loginMenu = new LoginMenu(this);
 
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         WelcomeMenu.primaryStage = primaryStage;

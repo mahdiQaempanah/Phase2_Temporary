@@ -5,7 +5,6 @@ import com.google.gson.reflect.TypeToken;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
-import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -16,13 +15,12 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.json.JSONObject;
-import sample.Controller.API;
 import sample.Model.ApiMessage;
 import sample.Model.JsonObject.CardGeneralInfo;
 import sample.View.Graphic.MainMenu;
+import sample.View.Graphic.SocketPackage;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class ShopMenuController {
@@ -33,15 +31,13 @@ public class ShopMenuController {
     public Label apiLog;
     private Stage primaryStage;
     public MainMenu myMainMenu;
-    public API api;
     public AnchorPane mainPane;
 
     private ArrayList<CardGeneralInfo> cardsInf0;
     private ArrayList<Rectangle> cards;
     
-    public void start(Stage stage, MainMenu myMainMenu, API api) throws Exception {
+    public void start(Stage stage, MainMenu myMainMenu) throws Exception {
         cards = new ArrayList<>();
-        this.api = api;
         this.myMainMenu = myMainMenu;
         this.primaryStage = stage;
         addCards();
@@ -199,7 +195,7 @@ public class ShopMenuController {
         JSONObject message = new JSONObject();
         for(int i = 0 ; i < keyWords.size() ; i+=2)
             message.put(keyWords.get(i), keyWords.get(i + 1));
-        JSONObject jsonAns = api.run(message);
+        JSONObject jsonAns = new JSONObject(SocketPackage.getInstance().getResponse(message));
         return new Gson().fromJson(String.valueOf(jsonAns),ApiMessage.class);
     }
 

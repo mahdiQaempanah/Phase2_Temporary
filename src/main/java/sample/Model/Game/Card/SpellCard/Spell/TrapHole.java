@@ -1,8 +1,8 @@
 package sample.Model.Game.Card.SpellCard.Spell;
 
-import sample.Model.Game.*;
 import sample.Model.Game.Card.MonsterCard.MonsterCard;
 import org.json.JSONObject;
+import sample.Model.Game.Game;
 
 public class TrapHole implements Spell{
     private boolean wasActivated = false;

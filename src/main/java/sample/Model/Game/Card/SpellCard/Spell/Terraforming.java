@@ -1,8 +1,8 @@
 package sample.Model.Game.Card.SpellCard.Spell;
 
-import sample.Model.Game.*;
 import sample.Model.Game.Card.*;
 import sample.Model.Game.Card.SpellCard.*;
+import sample.Model.Game.Game;
 
 public class Terraforming implements Spell{
     private boolean wasActivated = false;

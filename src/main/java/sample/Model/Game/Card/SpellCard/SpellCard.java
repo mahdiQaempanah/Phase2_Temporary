@@ -1,8 +1,8 @@
 package sample.Model.Game.Card.SpellCard;
 
-import sample.Model.Game.*;
 import sample.Model.Game.Card.*;
 import sample.Model.Game.Card.SpellCard.Spell.*;
+import sample.Model.Game.Game;
 
 public class SpellCard extends Card{
     private Spell spell;
@@ -19,7 +19,7 @@ public class SpellCard extends Card{
         setSpell(name);
     }
 
-    public void activate(Game game,String cardName){
+    public void activate(Game game, String cardName){
         this.getSpell().activate(game);
         this.getSpell().activate(game, cardName);
         if(!(this.getIcon().equals(Icon.EQUIP) || this.getIcon().equals(Icon.CONTINUOUS))) game.getActivePlayer().getField().killSpellCard(this);

@@ -1,7 +1,7 @@
 package sample.Model.Game.Card.MonsterCard;
 
-import sample.Model.Game.*;
 import sample.Model.Game.Card.*;
+import sample.Model.Game.Game;
 import sample.Model.JsonObject.AttackInfo;
 
 import java.util.ArrayList;

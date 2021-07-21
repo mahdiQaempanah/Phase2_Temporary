@@ -1,7 +1,7 @@
 package sample.Model.Game.Card.SpellCard.Spell;
 
-import sample.Model.Game.*;
 import sample.Model.Game.Card.MonsterCard.*;
+import sample.Model.Game.Game;
 
 public class Umiiruka implements Spell{
     private boolean wasActivated = false;

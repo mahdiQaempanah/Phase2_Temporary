@@ -46,13 +46,13 @@ public class GameViewController {
     public boolean isActivePlayer;
     public Rectangle blackReq;
 
-    public void startGame(int id,Stage stage, ApiMessage response, MainMenu mainMenu, Stage primaryStage) throws Exception {
+    public void startGame(int id,Stage stage, MainMenu mainMenu) throws Exception {
         blackReq = new Rectangle(0,0,418,1030);
         blackReq.setFill(Color.BLACK);
         this.id = id;
         this.isActivePlayer = new JSONObject(responseFromApi("command","isActivePlayer").getMessage()).getBoolean("isActivePlayer");
         this.myMainMenu = mainMenu;
-        this.primaryStage = primaryStage;
+        this.primaryStage = stage;
         board = new BoardComponent(this,mainPane);
         gameLog = new GameLog(gameLogLabel);
         gameStatus = new GameStatus(mainPane,this);

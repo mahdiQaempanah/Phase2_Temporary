@@ -78,7 +78,11 @@ public class GameViewController {
     }
 
     private void reloadBoard() throws Exception {
-        if(new JSONObject(responseFromApi("command","isActivePlayer").getMessage()).getBoolean("isActivePlayer")){
+        JSONObject isActiveMessage = new JSONObject(responseFromApi("command","isActivePlayer").getMessage());
+        if(!isActiveMessage.isNull("isGameEnd")){
+            myMainMenu.start(primaryStage);
+        }
+        if(isActiveMessage.getBoolean("isActivePlayer")){
             isActivePlayer = true;
             mainPane.getChildren().remove(blackReq);
             firstStepForActivePlayer();
@@ -105,9 +109,10 @@ public class GameViewController {
         keyWords.clear();
         keyWords.add("command");keyWords.add("get_board");
         response = responseFromApi(keyWords);
-        BoardJson newBoard = new Gson().fromJson(response.getMessage(), BoardJson.class);
-        board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
-        board.getInactivePlayer().buildHand(newBoard.getInActivePlayer().getHand());
+        resetBoard();
+        //BoardJson newBoard = new Gson().fromJson(response.getMessage(), BoardJson.class);
+        //board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+       // board.getInactivePlayer().buildHand(newBoard.getInActivePlayer().getHand());
         handleNextPhase();
     }
 
@@ -211,8 +216,9 @@ public class GameViewController {
         }
         showNewGameLog(Color.GREEN,"monster mode changed.",3000);
         gameStatus.reset(null);
-        BoardJson newBoard = getBoard();
-        board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
+        resetBoard();
+       // BoardJson newBoard = getBoard();
+       // board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
     }
 
     public void handleSetSpell(ActionEvent actionEvent) throws Exception {
@@ -227,9 +233,10 @@ public class GameViewController {
             return;
         }
         showNewGameLog(Color.GREEN,"spell was set.",3000);
-        BoardJson newBoard = getBoard();
-        board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
-        board.getActivePlayer().buildSpellZone(newBoard.getActivePlayer().getSpellZone(),ActivePlayerCardsCoordinates.spellZone);
+        resetBoard();
+        //BoardJson newBoard = getBoard();
+       // board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+       // board.getActivePlayer().buildSpellZone(newBoard.getActivePlayer().getSpellZone(),ActivePlayerCardsCoordinates.spellZone);
     }
 
     public void handleActiveSpell(ActionEvent actionEvent) throws Exception {
@@ -244,9 +251,10 @@ public class GameViewController {
             return;
         }
         showNewGameLog(Color.GREEN,"spell was activated.",3000);
-        BoardJson newBoard = getBoard();
-        board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
-        board.getActivePlayer().buildSpellZone(newBoard.getActivePlayer().getSpellZone(),ActivePlayerCardsCoordinates.spellZone);
+        resetBoard();
+      //  BoardJson newBoard = getBoard();
+      //  board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+       // board.getActivePlayer().buildSpellZone(newBoard.getActivePlayer().getSpellZone(),ActivePlayerCardsCoordinates.spellZone);
     }
 
 
@@ -254,9 +262,10 @@ public class GameViewController {
         if(withoutTributes){
             showNewGameLog(Color.GREEN,"monster was summoned.",3000);
             gameStatus.reset(null);
-            BoardJson newBoard = getBoard();
-            board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
-            board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
+            resetBoard();
+            //BoardJson newBoard = getBoard();
+           // board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+            //board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
             return;
         }
 
@@ -282,18 +291,20 @@ public class GameViewController {
         }else{
             showNewGameLog(Color.GREEN,"monster was summoned.",3000);
             gameStatus.reset(null);
-            BoardJson newBoard = getBoard();
-            board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
-            board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
+            resetBoard();
+           // BoardJson newBoard = getBoard();
+           // board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+           // board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
         }
     }
 
     public void setMonsterSelectedCard() throws Exception {
         showNewGameLog(Color.GREEN,"monster was set.",3000);
         gameStatus.reset(null);
-        BoardJson newBoard = getBoard();
-        board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
-        board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
+        resetBoard();
+        //BoardJson newBoard = getBoard();
+       // board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+       // board.getActivePlayer().buildMonsterZone(newBoard.getActivePlayer().getMonsterZone(), ActivePlayerCardsCoordinates.monsterZone);
     }
 
     public void checkGameOver() throws Exception {

@@ -31,7 +31,6 @@ public class WelcomeMenu extends Application {
         buildBackground(root);
         buildLogo(root);
         buildStartButton(root);
-        buildBackgroundMedia(root);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -96,10 +95,5 @@ public class WelcomeMenu extends Application {
         button.setAlignment(Pos.CENTER);
     }
 
-    private void buildBackgroundMedia(BorderPane root){
-        Media media = new Media(getClass().getResource("..\\..\\..\\sounds yugioh/DP_APPEAR.mp3").toExternalForm());
-        MediaPlayer mediaPlayer = new MediaPlayer(media);
-        mediaPlayer.setCycleCount(1);
-        mediaPlayer.play();
-    }
+
 }

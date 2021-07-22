@@ -48,7 +48,7 @@ public class GameViewController {
 
     public void startGame(int id,Stage stage, MainMenu mainMenu) throws Exception {
 
-        blackReq = new Rectangle(0,0,418,1030);
+        blackReq = new Rectangle(0,0,425,1030);
         blackReq.setFill(Color.BLACK);
         this.id = id;
         this.isActivePlayer = new JSONObject(responseFromApi("command","isActivePlayer","gameId",String.valueOf(id)).getMessage()).getBoolean("isActivePlayer");
@@ -85,7 +85,7 @@ public class GameViewController {
             return;
         }
         resetBoard();
-        new Timeline(new KeyFrame(Duration.millis(1000), (ActionEvent event) -> {
+        new Timeline(new KeyFrame(Duration.millis(1500), (ActionEvent event) -> {
             try {
                 reloadBoard();
             } catch (Exception exception) {
@@ -107,6 +107,7 @@ public class GameViewController {
         response = responseFromApi(keyWords);
         BoardJson newBoard = new Gson().fromJson(response.getMessage(), BoardJson.class);
         board.getActivePlayer().buildHand(newBoard.getActivePlayer().getHand());
+        board.getInactivePlayer().buildHand(newBoard.getInActivePlayer().getHand());
         handleNextPhase();
     }
 

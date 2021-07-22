@@ -319,6 +319,7 @@ public class FieldComponent {
 
     public void build(FieldJson field) {
         if(myController.isActivePlayer){
+            System.out.println(field);
             if(isActivePlayer){
                 buildMonsterZone(field.getMonsterZone(),ActivePlayerCardsCoordinates.monsterZone);
                 buildSpellZone(field.getSpellZone(),ActivePlayerCardsCoordinates.spellZone);
@@ -486,6 +487,7 @@ public class FieldComponent {
                     this.hand.add(addCardToPane(hand.get(i).getName(),new Point2D(ActivePlayerCardsCoordinates.startHand.getX()+i*(cardSize.getX()*0.66),
                             ActivePlayerCardsCoordinates.startHand.getY())));
             }else{
+                System.out.println("hand size:" + hand.size() + "  " + isActivePlayer + "  " + myController.isActivePlayer);
                 for(int i = 0 ; i < hand.size() ; i++)
                     this.hand.add(addCardToPane("CardToBack",new Point2D(InactivePlayerCardsCoordinates.startHand.getX()+i*(cardSize.getX()*0.66),
                             InactivePlayerCardsCoordinates.startHand.getY())));

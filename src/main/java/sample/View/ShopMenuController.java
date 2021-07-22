@@ -131,22 +131,25 @@ public class ShopMenuController {
             cards.add(card);
             mainPane.getChildren().add(card);
         }
-        assert cardsInf0.size() == cards.size();
+
     }
 
-    private void clickCard(Rectangle card, MouseEvent event) throws Exception {
+    private void clickCard(Rectangle newClickedCard, MouseEvent event) throws Exception {
         if(selectedCard != null){
+            int selectedCardId = getCardId(selectedCard);
+
+            selectedCard.setStyle(null);
             selectedCard.setOnMouseEntered(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
-                    card.setStyle("-fx-effect: dropshadow(three-pass-box,  #ffffff, 50, 0.6, 0, 0)");
+                    cards.get(selectedCardId).setStyle("-fx-effect: dropshadow(three-pass-box,  #ffffff, 50, 0.6, 0, 0)");
                 }
             });
 
             selectedCard.setOnMouseExited(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
-                    card.setStyle(null);
+                    cards.get(selectedCardId).setStyle(null);
                 }
             });
 
@@ -154,21 +157,20 @@ public class ShopMenuController {
                 @Override
                 public void handle(MouseEvent event) {
                     try {
-                        clickCard(card,event);
+                        clickCard(cards.get(selectedCardId),event);
                     } catch (Exception exception) {
                         exception.printStackTrace();
                     }
                 }
             });
 
-            selectedCard.setStyle(null);
         }
         buyButton.setDisable(false);
-        card.setOnMouseEntered(null);
-        card.setOnMouseExited(null);
-        card.setOnMouseClicked(null);
-        card.setStyle("-fx-effect: dropshadow(three-pass-box,  #00c832, 50, 0.6, 0, 0)");
-        selectedCard = card;
+        newClickedCard.setOnMouseEntered(null);
+        newClickedCard.setOnMouseExited(null);
+        newClickedCard.setOnMouseClicked(null);
+        newClickedCard.setStyle("-fx-effect: dropshadow(three-pass-box,  #00c832, 50, 0.6, 0, 0)");
+        selectedCard = newClickedCard;
         attemptToDisableBuyButton();
     }
 
@@ -183,7 +185,8 @@ public class ShopMenuController {
         int id = -1;
         for (Rectangle card : cards) {
             id++;
-            if(card == selectedCard);
+            if(card == selectedCard)
+                break;
         }
 
         if(money < cardsInf0.get(id).getPrice())
@@ -197,6 +200,16 @@ public class ShopMenuController {
             message.put(keyWords.get(i), keyWords.get(i + 1));
         JSONObject jsonAns = new JSONObject(SocketPackage.getInstance().getResponse(message));
         return new Gson().fromJson(String.valueOf(jsonAns),ApiMessage.class);
+    }
+
+    public int getCardId(Rectangle wantedCard){
+        int id = -1;
+        for (Rectangle card : cards) {
+            id++;
+            if(card == wantedCard)
+                return id;
+        }
+        return -1;
     }
 
     public String getCardPictureAddress(String cardName) {

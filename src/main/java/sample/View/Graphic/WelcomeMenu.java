@@ -37,8 +37,7 @@ public class WelcomeMenu extends Application {
 
     private void buildBackground(BorderPane root){
         Image backGroundImage = new Image(getClass().getResource("..\\..\\..\\Assets\\yugioh wallpaper.jpg").toExternalForm());
-        BackgroundSize bSize = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false,
-                false, true, false);
+        BackgroundSize bSize = new BackgroundSize(1950, 1030,false,false,false,false);
         root.setBackground(new Background(new BackgroundImage(backGroundImage,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,

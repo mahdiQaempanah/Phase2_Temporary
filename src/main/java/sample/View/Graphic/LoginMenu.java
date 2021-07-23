@@ -61,7 +61,7 @@ public class LoginMenu extends Application {
 
     private void buildBackground(BorderPane root) {
         Image backGroundImage = new Image(getClass().getResource("..\\..\\..\\Assets\\yugioh wallpaper.jpg").toExternalForm());
-        BackgroundSize bSize = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false,
+        BackgroundSize bSize = new BackgroundSize(1950, 1030, false,
                 false, true, false);
         root.setBackground(new Background(new BackgroundImage(backGroundImage,
                 BackgroundRepeat.NO_REPEAT,

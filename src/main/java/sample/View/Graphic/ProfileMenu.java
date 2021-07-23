@@ -36,10 +36,7 @@ public class ProfileMenu extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-
         //set scene and ...
-
         primaryStage.setTitle("yo-gy-oh");
         BorderPane root = new BorderPane();
         Scene scene = new Scene(root, 800, 600);
@@ -49,8 +46,8 @@ public class ProfileMenu extends Application {
 
 
         Image backGroundImage = new Image(getClass().getResource("..\\..\\..\\Assets\\profile.jpg").toExternalForm());
-        BackgroundSize bSize = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false,
-                false, true, false);
+        BackgroundSize bSize = new BackgroundSize(1950, 1030, false,
+                false, false, false);
         root.setBackground(new Background(new BackgroundImage(backGroundImage,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
@@ -59,8 +56,6 @@ public class ProfileMenu extends Application {
 
 
         //set lables and buttons
-
-
         Label title = new Label("Account");
         title.setStyle("-fx-background-color:white;-fx-border-color: black;-fx-border-width" +
                 ":2;-fx-border-radius:3;-fx-hgap:3;-fx-vgap:5;-fx-alignment: center;-fx-font-size: 100 px;-fx-padding: 10px");

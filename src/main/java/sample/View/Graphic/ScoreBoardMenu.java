@@ -14,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.json.JSONObject;
 import sample.Model.JsonObject.ScoreboardInfo;
@@ -36,27 +37,23 @@ public class ScoreBoardMenu extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // StackPane root = FXMLLoader.load(getClass().getResource("resources/sample.fxml"));
+        root.setStyle("-fx-background-color: black");
         Scene scene = new Scene(root, 800, 550);
         //scene.getStylesheet().add("path/Stylesheet.css");
-
         primaryStage.setScene(scene);
-
         primaryStage.setTitle("yu-gi-oh");
-
-
         primaryStage.show();
 
 
         Label title = new Label("scoreboard");
+        title.setTextFill(Color.WHITE);
         title.setAlignment(Pos.CENTER);
-        title.setStyle("-fx-background-color:white;-fx-border-color: black;-fx-border-width:2;-fx-border-radius:3;-fx-hgap:3;-fx-vgap:5;-fx-alignment: center;-fx-font-size: 50 px");
-        // title.setBackground(new Background(new BackgroundImage()));
+        title.setStyle("-fx-background-color: #aba810;-fx-border-width:2;-fx-border-radius:3;-fx-hgap:3;-fx-vgap:5;-fx-alignment: center;-fx-font-size: 50 px;-fx-effect: dropshadow(three-pass-box,  #b0a602, 50, 1, 0, 0)");
         root.setTop(title);
         BorderPane.setAlignment(title, Pos.CENTER);
 
 
-        javafx.scene.control.ScrollPane scrollPane = new javafx.scene.control.ScrollPane();
+        ScrollPane scrollPane = new javafx.scene.control.ScrollPane();
 
 
         root.setCenter(scrollPane);
@@ -64,6 +61,7 @@ public class ScoreBoardMenu extends Application {
         VBox scoreBar = new VBox();
         scoreBar.setSpacing(5);
         scoreBar.setAlignment(Pos.CENTER);
+        scoreBar.setStyle("-fx-background-color: black");
 
         ScrollPane oops=new ScrollPane();
         ///////////////////////////////////////////////////////////////    ???
@@ -76,7 +74,7 @@ public class ScoreBoardMenu extends Application {
         int prvScore = 0;
         scoreboardInfos.sort(Comparator.comparing(ScoreboardInfo::getNickname));
         scoreboardInfos.sort(Comparator.comparing(ScoreboardInfo::getScore));
-        for(int i=scoreboardInfos.size()-1 ;i>=0;i--){
+        for(int i=scoreboardInfos.size()-1 ; i >= 0 ; i--){
             Label userLable=new Label();
             if(scoreboardInfos.get(i).getScore() < prvScore) rank++;
             userLable.setText(rank + "-" + scoreboardInfos.get(i).getNickname() + ":" + scoreboardInfos.get(i).getScore());
@@ -92,7 +90,7 @@ public class ScoreBoardMenu extends Application {
         scoreBar.setAlignment(Pos.CENTER);
 
         oops.contentProperty().set(scoreBar);
-        oops.setStyle("-fx-alignment: center center;-fx-padding: 50 150 50 150");
+        oops.setStyle("-fx-background-color: black;-fx-alignment: center center;-fx-padding: 50 150 50 150");
 
         root.setCenter(oops);
         BorderPane.setAlignment(oops,Pos.CENTER);

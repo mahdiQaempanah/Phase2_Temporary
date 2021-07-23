@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 import org.json.JSONObject;
 import sample.View.BeforeDuelMenuController;
 import sample.View.DeckMenuController;
+import sample.View.ScoreboardController;
 import sample.View.ShopMenuController;
 
 import java.util.ArrayList;
@@ -75,8 +76,8 @@ public class MainMenu extends Application {
 
     private void buildBackground(BorderPane root) {
         Image backGroundImage = new Image(getClass().getResource("..\\..\\..\\Assets\\1300534.jpg").toExternalForm());
-        BackgroundSize bSize = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false,
-                false, true, false);
+        BackgroundSize bSize = new BackgroundSize(1950, 1030, false,
+                false, false, false);
         root.setBackground(new Background(new BackgroundImage(backGroundImage,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
@@ -215,8 +216,12 @@ public class MainMenu extends Application {
             @Override
             public void handle(MouseEvent event) {
                 try {
-                    ScoreBoardMenu scoreBoardMenu = new ScoreBoardMenu(me);
-                    scoreBoardMenu.start(primaryStage);
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("../../../Fxml/ScoreBoardMenu.fxml"));
+                    Parent root = loader.load();
+                    ScoreboardController controller = (ScoreboardController) loader.getController();
+                    primaryStage.setScene(new Scene(root));
+                    primaryStage.show();
+                    controller.start(primaryStage,me);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

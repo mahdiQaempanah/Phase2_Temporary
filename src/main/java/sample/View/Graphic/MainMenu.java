@@ -21,12 +21,7 @@ import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.json.JSONObject;
-import sample.View.BeforeDuelMenuController;
-import sample.View.DeckMenuController;
-import sample.View.ScoreboardController;
-import sample.View.ShopMenuController;
-
-import java.util.ArrayList;
+import sample.View.*;
 
 public class MainMenu extends Application {
     static private Stage primaryStage;
@@ -67,7 +62,7 @@ public class MainMenu extends Application {
         buildProfileButton(root);
         buildDuelButton(root);
         buildLogoutButton();
-        buildImportAndExportButton(root);
+        buildChatMenu(root);
 
         myScene = new Scene(root);
         primaryStage.setScene(myScene);
@@ -100,20 +95,30 @@ public class MainMenu extends Application {
         root.setTop(i);
     }
 
-    private void buildImportAndExportButton(BorderPane root) {
-        Rectangle importExportButton = new Rectangle();
-        importExportButton.setWidth(100);importExportButton.setHeight(100);
+    private void buildChatMenu(BorderPane root) {
+        MainMenu me = this;
+        Rectangle chatButton = new Rectangle();
+        chatButton.setWidth(100);chatButton.setHeight(100);
 
-        Image image5 = new Image(getClass().getResource("..\\..\\..\\Assets\\import-export-1780274-1513718.png").toExternalForm());
+        Image image5 = new Image(getClass().getResource("..\\..\\..\\Assets\\chat.png").toExternalForm());
         ImagePattern img5 = new ImagePattern(image5);
-        importExportButton.setFill(img5);
+        chatButton.setFill(img5);
 
-        optionsBox.getChildren().add(importExportButton);
-        addEffectToButton(importExportButton);
-        importExportButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        optionsBox.getChildren().add(chatButton);
+        addEffectToButton(chatButton);
+        chatButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                //
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("../../../Fxml/ChatRoom.fxml"));
+                    Parent root = loader.load();
+                    ChatRoomController controller = (ChatRoomController) loader.getController();
+                    primaryStage.setScene(new Scene(root));
+                    primaryStage.show();
+                    controller.start(primaryStage,me);
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
             }
         });
     }
